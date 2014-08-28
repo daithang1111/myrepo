@@ -1,0 +1,133 @@
+1. WARCBASE PROJECT
+#clean the project
+mvn clean package appassembler:assemble
+
+
+
+#Link
+https://github.com/lintool/warcbase
+
+#follow commands from git, and then execute the following commands to get text
+# probably, no need to use name entity since the name is wierd
+
+#Run Extract text from hbase table
+sh target/appassembler/bin/ExtractText -name thangTest -dir ../TEST_WB/arcFull
+
+#Create all docs in dir by userid
+python createMrLDAFile.py c108-sample-txt c108-sample.txt
+
+#
+
+
+2. GIT/MAVEN
+http://git-scm.com/docs/gittutorial
+
+
+3. Mallet
+http://mallet.cs.umass.edu/topics.php
+
+#create files in dir into mallet format for commands
+bin/mallet import-dir --input /fs/clip-scratch/daithang/wbdata/c108-sample.1 --output /fs/clip-scratch/daithang/wbdata/c108-sample.1.c.mallet --keep-sequence
+
+
+
+#to compute held-out, we need to use --evaluator-filename [FILENAME] in the training step to get the evaluator
+#then we need to convert test dir to test.mallet using the train mallet file as a pipe  
+#--use-pipe-from [MALLET TRAINING FILE]
+
+
+
+#train model
+bin/mallet train-topics --input /fs/clip-scratch/daithang/wbdata/c108-sample.1.c.mallet --num-topics 20 --output-topic-keys /fs/clip-scratch/daithang/wbdata/c108-sample.1.topics --num-top-words 20 --num-iterations 1000
+
+
+%%%%%%%%%%%%%%%%20news%%%%%%%%%%%%%%: /fs/clip-scratch/daithang/wbdata/20news
+#1. run the command to create dir with all individual files
+ python createFileForMalletGUI.py 20news.ti.dev.mallet 20newsDataDev
+#2. then run Mallet 
+bin/mallet import-dir --input /fs/clip-scratch/daithang/wbdata/20news/20newsDataDev --output /fs/clip-scratch/daithang/wbdata/20news.c.dev.mallet --use-pipe-from /fs/clip-scratch/daithang/wbdata/20news.c.train.mallet --keep-sequence
+#3. train and output evaluator
+ bin/mallet train-topics --input /fs/clip-scratch/daithang/wbdata/20news.c.train.mallet --num-topics 10 --num-iterations 100 --evaluator-filename /fs/clip-scratch/daithang/wbdata/20news.c.train.evaluator
+
+#4. infer the log prob (held-out) using
+bin/mallet evaluate-topics --evaluator /fs/clip-scratch/daithang/wbdata/20news.c.train.evaluator --input /fs/clip-scratch/daithang/wbdata/20news.c.dev.mallet --output-doc-probs /fs/clip-scratch/daithang/wbdata/20news.c.dev.heldout
+
+
+4. MrLDA
+https://github.com/lintool/Mr.LDA/tree/maven
+
+#display topic
+hadoop jar target/mrlda-0.9.0-SNAPSHOT-fatjar.jar cc.mrlda.DisplayTopic -index test/arcTxt-parsed/term -input test/arcTxt-lda/beta-50 -topdisplay 20
+
+
+#get the beta
+hadoop jar target/mrlda-0.9.0-SNAPSHOT-fatjar.jar edu.umd.cloud9.io.ReadSequenceFile test/20news.train.mrlda-lda-1/beta-50 >../TEST_WB/20news.mrlda.40.beta
+
+#compute HL score /.. go to /fs/clip-scratch/daithang/wbdata/20news/
+sh compareMallet_Mrlda.sh 20 20 20 dev 2840
+
+
+
+5. DTM
+http://princeton-statistical-learning.googlecode.com/files/dtm_release-0.8.tgz
+
+#run model
+./main --ntopics 20 --corpus_prefix data/20news --alpha=0.01 --outname=data/20news_model --mode=fit --initialize_lda=true
+
+convertMrldaTopicsToTopics.py
+
+6. HBase usage
+#open in shell
+habae shell 
+
+#to delete a table
+disable 'tablename'
+drop 'tablename'
+
+7. Congress 2007 data
+
+#download data from
+http://bit.ly/1rKXFIR
+
+module load R/3.0.2
+
+#generate words, documents from the file download
+mkdir documents
+Rscript printDocuments.R
+
+#clean documents 
+mkdir dir congress2007_clean
+python createCleanDocs.py
+
+#sample documents by percentage
+python sampleCleanDocs.py r   #if r = 1 to 100
+
+
+8. TFIDF
+
+#given a mrlda file for 20news groups, first create corpus for each group
+mkdir 20groups
+python splitIntoGroups.py 20news.mrlda.train
+
+#compute TF_IDF for each group
+#ex
+python computeTF_IDF.py 20groups/misc.forsale 20news.vocab.txt test.out 20 20 >informed.out
+
+#where the first 20 is the number of words with highest tfidf
+#the second 20 is the number of words in the informed list (ranked by number of appearance in each document)
+
+#for short to compute all
+sh displayTopTFIDF.sh >informed_20news.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
