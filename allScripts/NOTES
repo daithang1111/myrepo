@@ -67,6 +67,8 @@ hadoop jar target/mrlda-0.9.0-SNAPSHOT-fatjar.jar edu.umd.cloud9.io.ReadSequence
 sh compareMallet_Mrlda.sh 20 20 20 dev 2840
 
 
+#display topic distribution for documents
+hadoop jar target/mrlda-0.9.0-SNAPSHOT-fatjar.jar cc.mrlda.DisplayDocument -input 20news.mrlda.train-lda/gamma-93 >out.docs
 
 5. DTM
 http://princeton-statistical-learning.googlecode.com/files/dtm_release-0.8.tgz
