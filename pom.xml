@@ -20,7 +20,7 @@
   <scm>
     <connection>scm:git:git@github.com:daithang1111/myrepo.git</connection>
     <developerConnection>scm:git:git@github.com:daithang1111/myrepo.git</developerConnection>
-    <url>git@github.com:daithang1111/repo.git</url>
+    <url>git@github.com:daithang1111/myrepo.git</url>
   </scm>
 
   <developers>
@@ -124,12 +124,7 @@
       <artifactId>cloud9</artifactId>
       <version>1.4.17</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-analyzers-smartcn</artifactId>
-      <version>4.0.0</version>
-    </dependency>
-
+   
     <!-- Needed for ReadSequenceFiles -->
     <dependency>
       <groupId>org.apache.pig</groupId>
@@ -155,6 +150,59 @@
       <version>1.2.0</version>
     </dependency>
 
+	<dependency>
+      <groupId>com.syncthemall</groupId>
+      <artifactId>boilerpipe</artifactId>
+      <version>1.2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sourceforge.nekohtml</groupId>
+      <artifactId>nekohtml</artifactId>
+      <version>1.9.21</version>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+      <version>2.11.0</version>
+    </dependency>
+    
+     <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.8</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.7.3</version>
+    </dependency>
+    
+    <dependency>
+	<groupId>nz.ac.waikato.cms.weka</groupId>
+	<artifactId>weka-dev</artifactId>
+	<version>3.7.11</version>
+	</dependency>
 
+	<dependency>
+     <groupId>edu.stanford.nlp</groupId>
+     <artifactId>stanford-corenlp</artifactId>
+     <version>3.3.1</version>
+    </dependency>
+   <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-queryparser</artifactId>
+      <version>4.5.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-analyzers-common</artifactId>
+      <version>4.5.1</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-core</artifactId>
+      <version>4.5.1</version>
+    </dependency>
   </dependencies>
 </project>
