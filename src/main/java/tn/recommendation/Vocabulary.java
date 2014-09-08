@@ -8,7 +8,7 @@ public class Vocabulary {
 	private Hashtable<String, Integer> words = null;
 	private Hashtable<Integer, String> indexes = null;
 
-	Vocabulary() {
+	public Vocabulary() {
 		words = new Hashtable<String, Integer>();
 		indexes = new Hashtable<Integer, String>();
 	}
@@ -95,4 +95,37 @@ public class Vocabulary {
 	public int getVocabSize() {
 		return words.size();
 	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public Hashtable<String, Integer> getWords() {
+		return words;
+	}
+
+	/**
+	 * 
+	 * @param words
+	 */
+	public void setWords(Hashtable<String, Integer> words) {
+		this.words = words;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public Hashtable<Integer, String> getIndexes() {
+		return indexes;
+	}
+
+	/**
+	 * 
+	 * @param indexes
+	 */
+	public void setIndexes(Hashtable<Integer, String> indexes) {
+		this.indexes = indexes;
+	}
+
 }

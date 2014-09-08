@@ -122,11 +122,15 @@ python computeTF_IDF.py 20groups/misc.forsale 20news.vocab.txt test.out 20 20 >i
 sh displayTopTFIDF.sh >informed_20news.txt
 
 
+9. Multi-label classifier with Mulan
 
+#create training data 
+nohup sh target/appassembler/bin/GenerateLabeledArff -input ~/TEST_WB/test_data/INPUT/20news.mrlda.train.out -neFinder ~/TEST_WB/metadata/english.all.3class.distsim.crf.ser.gz -outputDir ~/TEST_WB/test_data/OUTPUT -stopWord ~/TEST_WB/metadata/stop_words.txt >& log.out &
 
+#create testing data
+nohup sh target/appassembler/bin/GenerateUnlabeledArff -input ~/TEST_WB/test_data/INPUT/20news.mrlda.test.out -labelSize 20 -neFinder ~/TEST_WB/metadata/english.all.3class.distsim.crf.ser.gz -outputDir ~/TEST_WB/test_data/OUTPUT -vocabFile ~/TEST_WB/test_data/OUTPUT/labeled.vocab.txt &>log.out
 
-
-
+#training, and predict
 
 
 

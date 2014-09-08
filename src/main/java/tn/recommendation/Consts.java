@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public final class Consts {
-	public static final String stopWordFileName = "stopwords.txt";
+	public static final String stopWordFileName = null;
 	public static final double TFIDF_THRESHOLD = 0.1;
 	public static final double USER_SIMILARITY_THRESHOLD = 0.1;
 	public static final double DOC_SIMILARITY_THRESHOLD = 0.1;
@@ -30,14 +30,15 @@ public final class Consts {
 	static {
 		try {
 			stop_words = new ArrayList<String>();
-
-			BufferedReader reader = new BufferedReader(new FileReader(
-					stopWordFileName));
-			String line = null;
-			while ((line = reader.readLine()) != null) {
-				stop_words.add(line.toLowerCase());
+			if (stopWordFileName != null) {
+				BufferedReader reader = new BufferedReader(new FileReader(
+						stopWordFileName));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					stop_words.add(line.toLowerCase());
+				}
+				reader.close();
 			}
-			reader.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

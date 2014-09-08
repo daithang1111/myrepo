@@ -83,7 +83,36 @@
               </execution>
             </executions>
           </plugin>
-
+ <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>1.3.1</version>
+        <configuration>
+          <extraJvmArguments>-Xms512M -Xmx24576M</extraJvmArguments>
+          <programs>
+            <program>
+              <mainClass>tn.data.ProcessCodeBook</mainClass>
+              <name>ProcessCodeBook</name>
+            </program>
+            <program>
+              <mainClass>tn.data.GenerateUnlabeledArff</mainClass>
+              <name>GenerateUnlabeledArff</name>
+            </program>
+            <program>
+              <mainClass>tn.data.GenerateLabeledArff</mainClass>
+              <name>GenerateLabeledArff</name>
+            </program>
+            <program>
+              <mainClass>tn.classify.ClassifyMultiLabel</mainClass>
+              <name>ClassifyMultiLabel</name>
+            </program>
+            <program>
+              <mainClass>tn.classify.PredictMultiLabel</mainClass>
+              <name>PredictMultiLabel</name>
+            </program>
+          </programs>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -177,11 +206,11 @@
       <version>1.7.3</version>
     </dependency>
     
-    <dependency>
+   <dependency>
 	<groupId>nz.ac.waikato.cms.weka</groupId>
 	<artifactId>weka-dev</artifactId>
-	<version>3.7.11</version>
-	</dependency>
+	<version>3.7.6</version>
+</dependency>
 
 	<dependency>
      <groupId>edu.stanford.nlp</groupId>
@@ -204,5 +233,12 @@
       <artifactId>lucene-core</artifactId>
       <version>4.5.1</version>
     </dependency>
+    
+    <dependency>
+	  <groupId>net.sf.meka.thirdparty</groupId>
+	  <artifactId>mulan</artifactId>
+	  <version>1.4.0</version>
+	</dependency>
+
   </dependencies>
 </project>
