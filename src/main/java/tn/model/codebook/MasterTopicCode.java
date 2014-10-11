@@ -1,9 +1,9 @@
-package tn.data;
+package tn.model.codebook;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MasterTopic {
+public class MasterTopicCode {
 	private String name;
 	private int code;
 
@@ -15,7 +15,7 @@ public class MasterTopic {
 		this.code = code;
 	}
 
-	private List<Topic> topics;
+	private List<TopicCode> topics;
 
 	public String getName() {
 		return name;
@@ -25,14 +25,14 @@ public class MasterTopic {
 		this.name = name;
 	}
 
-	public List<Topic> getTopics() {
+	public List<TopicCode> getTopics() {
 		if (topics == null) {
-			topics = new ArrayList<Topic>();
+			topics = new ArrayList<TopicCode>();
 		}
 		return topics;
 	}
 
-	public void setTopics(List<Topic> topics) {
+	public void setTopics(List<TopicCode> topics) {
 		this.topics = topics;
 	}
 

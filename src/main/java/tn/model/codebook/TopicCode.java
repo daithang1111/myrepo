@@ -1,8 +1,8 @@
-package tn.data;
+package tn.model.codebook;
 
 import java.util.List;
 
-public class Topic {
+public class TopicCode {
 	private String name;
 	private int code;
 

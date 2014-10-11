@@ -1,14 +1,15 @@
-package tn.classify;
+package tn.classification.classify;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import mulan.classifier.MultiLabelOutput;
+import mulan.classifier.lazy.MLkNN;
 import mulan.classifier.meta.RAkEL;
 import mulan.classifier.transformation.LabelPowerset;
 import mulan.data.InvalidDataFormatException;
 import mulan.data.MultiLabelInstances;
+import mulan.evaluation.Evaluator;
+import mulan.evaluation.MultipleEvaluation;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -21,15 +22,14 @@ import org.apache.log4j.Logger;
 
 import tn.util.Consts;
 import weka.classifiers.trees.J48;
-import weka.core.Instance;
-import weka.core.Instances;
 
-public class PredictMultiLabel {
-	private static final Logger LOG = Logger.getLogger(PredictMultiLabel.class);
+public class ClassifyMultiLabel {
+	private static final Logger LOG = Logger
+			.getLogger(ClassifyMultiLabel.class);
 	private static final String ARFFTRAIN_OPTION = "arffTrain";
 	private static final String OUTPUT_OPTION = "outputDir";
 	private static final String XMLLABELS_OPTION = "xmlLabels";
-	private static final String UNLABELED_OPTION = "unlabeled";
+	private static final String NUMFOLD_OPTION = "numFolds";
 
 	@SuppressWarnings("static-access")
 	public static void main(String[] args) throws IOException,
@@ -44,9 +44,9 @@ public class PredictMultiLabel {
 		options.addOption(OptionBuilder.withArgName("xmlLabels").hasArg()
 				.withDescription("label xml file").create(XMLLABELS_OPTION));
 
-		options.addOption(OptionBuilder.withArgName("unlabeled").hasArg()
-				.withDescription("unlabeled arff file")
-				.create(UNLABELED_OPTION));
+		options.addOption(OptionBuilder.withArgName("numFolds").hasArg()
+				.withDescription("number of fold for cross validation")
+				.create(NUMFOLD_OPTION));
 
 		CommandLine cmdline = null;
 		CommandLineParser parser = new GnuParser();
@@ -61,47 +61,38 @@ public class PredictMultiLabel {
 		if (!cmdline.hasOption(OUTPUT_OPTION)
 				|| !cmdline.hasOption(ARFFTRAIN_OPTION)
 				|| !cmdline.hasOption(XMLLABELS_OPTION)
-				|| !cmdline.hasOption(UNLABELED_OPTION)) {
+				|| !cmdline.hasOption(NUMFOLD_OPTION)) {
 			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp(PredictMultiLabel.class.getCanonicalName(),
+			formatter.printHelp(ClassifyMultiLabel.class.getCanonicalName(),
 					options);
 			System.exit(-1);
 		}
 		String arffTrain = cmdline.getOptionValue(ARFFTRAIN_OPTION);
 		String outputDir = cmdline.getOptionValue(OUTPUT_OPTION);
 		String xmlLabels = cmdline.getOptionValue(XMLLABELS_OPTION);
-		String arffUnlabeled = cmdline.getOptionValue(UNLABELED_OPTION);
+		int numFolds = Integer.parseInt(cmdline.getOptionValue(NUMFOLD_OPTION));
 		try {
-			LOG.info("traing and do prediction");
+			LOG.info("Traing 2 learners on dataset");
 			// get training data
 			MultiLabelInstances dataset = new MultiLabelInstances(arffTrain,
 					xmlLabels);
 
 			// 2 meta classifiers
-			RAkEL model = new RAkEL(new LabelPowerset(new J48()));
-			try {
-				model.build(dataset);
+			RAkEL learner1 = new RAkEL(new LabelPowerset(new J48()));
+			MLkNN learner2 = new MLkNN();
 
-				// load unlabeled data
-				FileReader reader = new FileReader(arffUnlabeled);
-				Instances unlabeledData = new Instances(reader);
+			// evaluation tool
+			Evaluator eval = new Evaluator();
+			MultipleEvaluation results;
 
-				// make prediction
-				String predictionOutput = outputDir + "/predictions.out";
-				int numInstances = unlabeledData.numInstances();
-				for (int instanceIndex = 0; instanceIndex < numInstances; instanceIndex++) {
-					Instance instance = unlabeledData.instance(instanceIndex);
-					MultiLabelOutput output = model.makePrediction(instance);
-					// do necessary operations with provided prediction output,
-					// here just print it out
-					Consts.fileWriter(output.toString() + "\n",
-							predictionOutput, true);
-				}
+			results = eval.crossValidate(learner1, dataset, numFolds);
+			String output = outputDir + "/learner1.out";
+			Consts.fileWriter(results.toCSV(), output, true);
 
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			output = outputDir + "/learner2.out";
+
+			results = eval.crossValidate(learner2, dataset, numFolds);
+			Consts.fileWriter(results.toCSV(), output, true);
 
 		} catch (InvalidDataFormatException e) {
 			// TODO Auto-generated catch block

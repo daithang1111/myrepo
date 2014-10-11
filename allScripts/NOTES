@@ -70,6 +70,12 @@ sh compareMallet_Mrlda.sh 20 20 20 dev 2840
 #display topic distribution for documents
 hadoop jar target/mrlda-0.9.0-SNAPSHOT-fatjar.jar cc.mrlda.DisplayDocument -input 20news.mrlda.train-lda/gamma-93 >out.docs
 
+#inform prior
+hadoop jar target/mrlda-0.9.0-SNAPSHOT-fatjar.jar cc.mrlda.InformedPrior -input press.mrlda.informed -output press.mrlda.informed-informed -index output.txt.trunc-parsed/term
+
+nohup hadoop jar target/mrlda-0.9.0-SNAPSHOT-fatjar.jar cc.mrlda.VariationalInference -input output.txt.trunc-parsed/document -informedprior press.mrlda.informed-informed -output output.txt.trunc-lda-informed -symmetricalpha 0.01 -term 10000 -topic 20 -iteration 1000 -mapper 50 -reducer 20 >& log.informed.press 
+
+
 5. DTM
 http://princeton-statistical-learning.googlecode.com/files/dtm_release-0.8.tgz
 
@@ -122,18 +128,20 @@ python computeTF_IDF.py 20groups/misc.forsale 20news.vocab.txt test.out 20 20 >i
 sh displayTopTFIDF.sh >informed_20news.txt
 
 
-9. Multi-label classifier with Mulan
+9. Multi-label/class classifier with Mulan
 
 #create training data 
-nohup sh target/appassembler/bin/GenerateLabeledArff -input ~/TEST_WB/test_data/INPUT/20news.mrlda.train.out -neFinder ~/TEST_WB/metadata/english.all.3class.distsim.crf.ser.gz -outputDir ~/TEST_WB/test_data/OUTPUT -stopWord ~/TEST_WB/metadata/stop_words.txt >& log.out &
+ sh target/appassembler/bin/ProcessCodeBook -codebook ~/TEST_WB/test_data/INPUT/codebook.txt -neFinder ~/TEST_WB/metadata/english.all.3class.distsim.crf.ser.gz -outputDir ~/TEST_WB/test_data/OUTPUT/CODEBOOK -stopWord ~/TEST_WB/metadata/stop_words.txt
 
 #create testing data
-nohup sh target/appassembler/bin/GenerateUnlabeledArff -input ~/TEST_WB/test_data/INPUT/20news.mrlda.test.out -labelSize 20 -neFinder ~/TEST_WB/metadata/english.all.3class.distsim.crf.ser.gz -outputDir ~/TEST_WB/test_data/OUTPUT -vocabFile ~/TEST_WB/test_data/OUTPUT/labeled.vocab.txt &>log.out
+nohup sh target/appassembler/bin/GenerateUnlabeledArff -input ~/TEST_WB/test_data/congress2007/data/congress2007.txt.100 -neFinder ~/TEST_WB/metadata/english.all.3class.distsim.crf.ser.gz -outputDir ~/TEST_WB/test_data/OUTPUT/PRESS2007 -txtLabels ~/TEST_WB/test_data/OUTPUT/CODEBOOK/labels.txt -vocabFile ~/TEST_WB/test_data/OUTPUT/CODEBOOK/vocab.txt >& log.out &
 
 #training, and predict
+sh target/appassembler/bin/PredictMultiClass -algorithmOption ~/TEST_WB/test_data/INPUT/logistic.algorithm -outputDir ~/TEST_WB/test_data/OUTPUT/CODEBOOK/ -arffTrain ~/TEST_WB/test_data/OUTPUT/CODEBOOK/labeled.multiclass.frequency.arff -unlabeled ~/TEST_WB/test_data/OUTPUT/CODEBOOK/labeled.multiclass.frequency.arff
 
 
 
 
+10. SeededLDA
 
 

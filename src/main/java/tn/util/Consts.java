@@ -18,7 +18,7 @@ public class Consts {
 	 * @param file
 	 * @return
 	 */
-	public static List<String> readFromFile(String file) {
+	public static List<String> readFileAsList(String file) {
 		List<String> terms = new ArrayList<String>();
 		FileInputStream fstream = null;
 		DataInputStream in = null;
@@ -45,6 +45,30 @@ public class Consts {
 		return terms;
 	}
 
+	public static String readFile(String file) {
+		StringBuffer buf = new StringBuffer();
+		FileInputStream fstream = null;
+		DataInputStream in = null;
+		BufferedReader br = null;
+		try {
+			fstream = new FileInputStream(file);
+			in = new DataInputStream(fstream);
+			br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			String strLine = "";
+			while ((strLine = br.readLine()) != null) {
+				buf.append(strLine + "\n");
+			}
+			br.close();
+			in.close();
+		} catch (IOException e) {
+
+		} finally {
+			closeQuietly(br);
+			closeQuietly(in);
+			closeQuietly(fstream);
+		}
+		return buf.toString();
+	}
 	/**
 	 * 
 	 * @param closeable

@@ -1,4 +1,4 @@
-package tn.util;
+package tn.mapreduce;
 
 /**
  * @author nguyentd4

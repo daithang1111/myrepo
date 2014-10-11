@@ -30,9 +30,10 @@ public class Vocabulary {
 				indexes.put(1, word.toLowerCase());
 			} else {
 				if (!words.containsKey(word.toLowerCase())) {
-					words.put(word.toLowerCase(), words.size() + 1);
+					int len = words.size();
+					words.put(word.toLowerCase(), len + 1);
 					//
-					indexes.put(words.size() + 1, word.toLowerCase());
+					indexes.put(len + 1, word.toLowerCase());
 				}
 			}
 		}

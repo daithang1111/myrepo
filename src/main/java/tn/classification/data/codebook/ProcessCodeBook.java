@@ -1,4 +1,4 @@
-package tn.data;
+package tn.classification.data.codebook;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -20,6 +20,8 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.util.Version;
 
+import tn.model.codebook.MasterTopicCode;
+import tn.model.codebook.TopicCode;
 import tn.recommendation.Vocabulary;
 import tn.util.AnalyzerUtils;
 import tn.util.Consts;
@@ -80,7 +82,7 @@ public class ProcessCodeBook {
 		List<String> stop_words = new ArrayList<String>();
 		if (cmdline.hasOption(STOPWORD_OPTION)) {
 			stopWordFile = cmdline.getOptionValue(STOPWORD_OPTION);
-			stop_words = Consts.readFromFile(stopWordFile);
+			stop_words = Consts.readFileAsList(stopWordFile);
 		}
 
 		String neFile = "";
@@ -90,13 +92,13 @@ public class ProcessCodeBook {
 			neFinder = new NEFinder(neFile);
 		}
 
-		List<String> terms = Consts.readFromFile(codebook);
+		List<String> terms = Consts.readFileAsList(codebook);
 
 		// convert terms to master topic
-		ArrayList<MasterTopic> masters = new ArrayList<MasterTopic>();
+		ArrayList<MasterTopicCode> masters = new ArrayList<MasterTopicCode>();
 
-		MasterTopic mt = null;
-		Topic tp = null;
+		MasterTopicCode mt = null;
+		TopicCode tp = null;
 		for (int i = 0; i < terms.size(); i++) {
 			String line = terms.get(i);
 			if (line.startsWith("See also:")) {
@@ -112,7 +114,7 @@ public class ProcessCodeBook {
 				mt.getTopics().add(tp);
 			} else if (line.contains(":")) {
 				// process topic
-				tp = new Topic();
+				tp = new TopicCode();
 				int index = line.indexOf(":");
 				if (index != -1) {
 					try {
@@ -134,8 +136,8 @@ public class ProcessCodeBook {
 				if (mt != null) {
 					masters.add(mt);
 				}
-				mt = new MasterTopic();
-				tp = new Topic();
+				mt = new MasterTopicCode();
+				tp = new TopicCode();
 				int index = line.indexOf(".");
 				if (index != -1) {
 					try {
@@ -150,50 +152,60 @@ public class ProcessCodeBook {
 		}
 		masters.add(mt);
 
+		/**
+		 * There are two types of arff files, 1 for multi-label and 1 for
+		 * multi-class classifiers The focus will be on multi-label, but
+		 * multi-class will always be supported
+		 */
 		// print out labels.xml
 		// label is the topic name
-		String xmlLabels = outputDir + "/" + "labels.xml";
+		String xmlLabels = outputDir + "/labels.xml";
+		String txtLabels = outputDir + "/labels.txt";
+		List<String> labelList = new ArrayList<String>();
+		for (int i = 0; i < masters.size(); i++) {
+			labelList.add(masters.get(i).getName()
+					.replaceAll("[^a-zA-Z0-9]", ""));
+		}
+
 		Consts.fileWriter(
 				"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<labels xmlns=\"http://mulan.sourceforge.net/labels\">\n",
 				xmlLabels, true);
 
-		for (int i = 0; i < masters.size(); i++) {
-			Consts.fileWriter(
-					"<label name=\"label" + (i + 1) + "\"></label>\n",
-					xmlLabels, true);
+		for (int i = 0; i < labelList.size(); i++) {
+			Consts.fileWriter("<label name=\"" + labelList.get(i)
+					+ "\"></label>\n", xmlLabels, true);
+			Consts.fileWriter(labelList.get(i) + "\n", txtLabels, true);
 		}
 
 		Consts.fileWriter("</labels>\n", xmlLabels, true);
 
 		// print to arff textfile
-		String arffFile = outputDir + "/" + "text.arff";
-		printTextArff(masters, arffFile);
+		printTextArff(masters, outputDir, labelList);
 
 		// print to arff frequency base
 		// need to build dictionary first
 
 		Vocabulary vocab = new Vocabulary();
 		for (int i = 0; i < masters.size(); i++) {
-			List<Topic> topics = masters.get(i).getTopics();
-			for (Topic topic : topics) {
+			List<TopicCode> topics = masters.get(i).getTopics();
+			for (TopicCode topic : topics) {
 				vocab.addText(Joiner.on(" ").join(topic.getKeywords()));
 			}
 		}
 
-		arffFile = outputDir + "/" + "frequency.arff";
-		printFrequencyArff(masters, vocab, arffFile);
+		printFrequencyArff(masters, vocab, outputDir, labelList);
 
 		// store dictionary for later usage
-		String dicFile = outputDir + "/vocab.txt";
-		printVocab(vocab, dicFile);
+		printVocab(vocab, outputDir);
 	}
 
 	/**
 	 * 
 	 * @param vocab
-	 * @param dicFile
+	 * @param outputDir
 	 */
-	private static void printVocab(Vocabulary vocab, String dicFile) {
+	private static void printVocab(Vocabulary vocab, String outputDir) {
+		String dicFile = outputDir + "/vocab.txt";
 		Set<Entry<String, Integer>> set = vocab.getWords().entrySet();
 		List<String> list = new ArrayList<String>();
 		for (Entry<String, Integer> entry : set) {
@@ -208,22 +220,41 @@ public class ProcessCodeBook {
 	 * @param vocab
 	 * @param arffFile
 	 */
-	private static void printFrequencyArff(List<MasterTopic> masters,
-			Vocabulary vocab, String arffFile) {
+	private static void printFrequencyArff(List<MasterTopicCode> masters,
+			Vocabulary vocab, String outputDir, List<String> labelList) {
 
-		Consts.fileWriter("@relation codebook\n\n", arffFile, true);
+		// for multilabel
+		String multilabelArff = outputDir
+				+ "/labeled.multilabel.frequency.arff";
+		String multiclassArff = outputDir
+				+ "/labeled.multiclass.frequency.arff";
 
-		for (int i = 0; i < masters.size(); i++) {
-			Consts.fileWriter("@attribute label" + (i + 1) + " {0, 1}\n",
-					arffFile, true);
+		String classForMultiClassArff = Joiner.on(",").join(labelList);
+
+		Consts.fileWriter("@relation codebook\n\n", multilabelArff, true);
+		//
+		Consts.fileWriter("@relation codebook\n\n", multiclassArff, true);
+
+		for (int i = 0; i < labelList.size(); i++) {
+			Consts.fileWriter("@attribute " + labelList.get(i) + " {0, 1}\n",
+					multilabelArff, true);
 		}
+		//
+		Consts.fileWriter(
+				"@attribute ZZZCLASS {" + classForMultiClassArff + "}\n",
+				multiclassArff, true);
 
 		for (int i = 0; i < vocab.getVocabSize(); i++) {
-			Consts.fileWriter("@attribute word" + (i + 1) + " numeric\n",
-					arffFile, true);
+			Consts.fileWriter("@attribute " + vocab.getWord(i + 1)
+					+ " numeric\n", multilabelArff, true);
+			//
+			Consts.fileWriter("@attribute " + vocab.getWord(i + 1)
+					+ " numeric\n", multiclassArff, true);
 		}
 
-		Consts.fileWriter("@data\n", arffFile, true);
+		Consts.fileWriter("@data\n", multilabelArff, true);
+		//
+		Consts.fileWriter("@data\n", multiclassArff, true);
 
 		for (int i = 0; i < masters.size(); i++) {
 			StringBuffer labels = new StringBuffer();
@@ -235,14 +266,18 @@ public class ProcessCodeBook {
 				labels.append("0,");
 			}
 
-			MasterTopic master = masters.get(i);
+			MasterTopicCode master = masters.get(i);
 
-			List<Topic> topics = master.getTopics();
+			List<TopicCode> topics = master.getTopics();
 			for (int j = 0; j < topics.size(); j++) {
-				Consts.fileWriter(
-						labels.toString()
-								+ printFreqVector(vocab, topics.get(j)
-										.getKeywords()) + "\n", arffFile, true);
+				String freqVector = printFreqVector(vocab, topics.get(j)
+						.getKeywords());
+
+				Consts.fileWriter(labels.toString() + freqVector + "\n",
+						multilabelArff, true);
+				//
+				Consts.fileWriter(labelList.get(i) + "," + freqVector + "\n",
+						multiclassArff, true);
 			}
 		}
 	}
@@ -288,19 +323,41 @@ public class ProcessCodeBook {
 	/**
 	 * 
 	 * @param masters
-	 * @param arffFile
+	 * @param outputDir
+	 * @param labelList
 	 */
-	private static void printTextArff(List<MasterTopic> masters, String arffFile) {
+	private static void printTextArff(List<MasterTopicCode> masters,
+			String outputDir, List<String> labelList) {
 
-		Consts.fileWriter("@relation codebook\n\n", arffFile, true);
+		// for multilabel
+		String multilabelArff = outputDir + "/labeled.multilabel.text.arff";
+		String multiclassArff = outputDir + "/labeled.multiclass.text.arff";
+		String textFile = outputDir + "/labeled.txt";
 
-		for (int i = 0; i < masters.size(); i++) {
-			Consts.fileWriter("@attribute label" + (i + 1) + " {0, 1}\n",
-					arffFile, true);
+		String classForMultiClassArff = Joiner.on(",").join(labelList);
+
+		Consts.fileWriter("@relation codebook\n\n", multilabelArff, true);
+		//
+		Consts.fileWriter("@relation codebook\n\n", multiclassArff, true);
+
+		for (int i = 0; i < labelList.size(); i++) {
+			Consts.fileWriter("@attribute " + labelList.get(i) + " {0, 1}\n",
+					multilabelArff, true);
 		}
-		Consts.fileWriter("@attribute keywords string\n\n", arffFile, true);
-		Consts.fileWriter("@data\n", arffFile, true);
+		//
+		Consts.fileWriter(
+				"@attribute ZZZCLASS {" + classForMultiClassArff + "}\n",
+				multiclassArff, true);
 
+		Consts.fileWriter("@attribute keywords string\n\n", multilabelArff,
+				true);
+		//
+		Consts.fileWriter("@attribute keywords string\n\n", multiclassArff,
+				true);
+
+		Consts.fileWriter("@data\n", multilabelArff, true);
+		//
+		Consts.fileWriter("@data\n", multiclassArff, true);
 		for (int i = 0; i < masters.size(); i++) {
 			StringBuffer labels = new StringBuffer();
 			for (int j = 0; j < i; j++) {
@@ -311,13 +368,19 @@ public class ProcessCodeBook {
 				labels.append("0,");
 			}
 
-			MasterTopic master = masters.get(i);
+			MasterTopicCode master = masters.get(i);
 
-			List<Topic> topics = master.getTopics();
+			List<TopicCode> topics = master.getTopics();
 			for (int j = 0; j < topics.size(); j++) {
 				String text = Joiner.on(" ").join(topics.get(j).getKeywords());
 				Consts.fileWriter(labels.toString() + "\"" + text + "\"\n",
-						arffFile, true);
+						multilabelArff, true);
+				//
+				Consts.fileWriter(labelList.get(i) + ",\"" + text + "\"\n",
+						multiclassArff, true);
+
+				Consts.fileWriter(labelList.get(i) + "\t" + text + "\n",
+						textFile, true);
 			}
 		}
 	}

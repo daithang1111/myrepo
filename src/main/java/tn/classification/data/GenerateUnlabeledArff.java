@@ -1,4 +1,4 @@
-package tn.data;
+package tn.classification.data;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -35,7 +35,7 @@ public class GenerateUnlabeledArff {
 	private static final String OUTPUT_OPTION = "outputDir";
 	private static final String VOCAB_OPTION = "vocabFile";
 	private static final String NEFINDER_OPTION = "neFinder";
-	private static final String LABELSIZE_OPTION = "labelSize";
+	private static final String TXTLABELS_OPTION = "txtLabels";
 
 	@SuppressWarnings("static-access")
 	public static void main(String[] args) throws IOException,
@@ -57,9 +57,9 @@ public class GenerateUnlabeledArff {
 				.withDescription(
 						"english stanford name entity reg (english.all.3class.distsim.crf.ser.gz)")
 				.create(NEFINDER_OPTION));
-		options.addOption(OptionBuilder.withArgName("labelSize").hasArg()
-				.withDescription("the number of labels")
-				.create(LABELSIZE_OPTION));
+		options.addOption(OptionBuilder.withArgName("txtLabels").hasArg()
+				.withDescription("the txt file of labels")
+				.create(TXTLABELS_OPTION));
 
 		CommandLine cmdline = null;
 		CommandLineParser parser = new GnuParser();
@@ -71,7 +71,7 @@ public class GenerateUnlabeledArff {
 			System.exit(-1);
 		}
 
-		if (!cmdline.hasOption(LABELSIZE_OPTION)
+		if (!cmdline.hasOption(TXTLABELS_OPTION)
 				|| !cmdline.hasOption(OUTPUT_OPTION)
 				|| !cmdline.hasOption(INPUT_OPTION)
 				|| !cmdline.hasOption(VOCAB_OPTION)) {
@@ -84,9 +84,11 @@ public class GenerateUnlabeledArff {
 		String input = cmdline.getOptionValue(INPUT_OPTION);
 		String outputDir = cmdline.getOptionValue(OUTPUT_OPTION);
 		String vocabFile = cmdline.getOptionValue(VOCAB_OPTION);
-		int labelSize = Integer.parseInt(cmdline
-				.getOptionValue(LABELSIZE_OPTION));
-		List<String> word_index = Consts.readFromFile(vocabFile);
+		String txtLabels = cmdline.getOptionValue(TXTLABELS_OPTION);
+
+		List<String> labelList = Consts.readFileAsList(txtLabels);
+
+		List<String> word_index = Consts.readFileAsList(vocabFile);
 		String word = "";
 		int index = -1;
 		Vocabulary vocab = new Vocabulary();
@@ -107,27 +109,27 @@ public class GenerateUnlabeledArff {
 			neFinder = new NEFinder(neFile);
 		}
 
-		List<String> terms = Consts.readFromFile(input);
+		List<String> terms = Consts.readFileAsList(input);
 		List<String> cleanedTerms = new ArrayList<String>();
 		for (int i = 0; i < terms.size(); i++) {
 			String[] label_str = terms.get(i).split("\\t");
 			if (label_str != null && label_str.length == 2) {
-				String clean = cleanText(label_str[1], vocab, neFinder);
-				if (clean.length() > 10) {
-					cleanedTerms.add(clean);
+				List<String> clean = cleanText(label_str[1], vocab, neFinder);
+				if (clean != null && clean.size() >= 10) {
+					String cleanedText = Joiner.on(" ").join(clean);
+					cleanedTerms.add(label_str[0] + "\t" + cleanedText);
 				}
 			}
 
 		}
 
 		// print to arff textfile
-		String arffFile = outputDir + "/" + "unlabeled.text.arff";
-		printTextArff(cleanedTerms, arffFile, labelSize);
+
+		printTextArff(cleanedTerms, outputDir, labelList);
 
 		// print to arff frequency base
 
-		arffFile = outputDir + "/" + "unlabeled.frequency.arff";
-		printFrequencyArff(cleanedTerms, vocab, arffFile, labelSize);
+		printFrequencyArff(cleanedTerms, vocab, outputDir, labelList);
 
 	}
 
@@ -138,28 +140,54 @@ public class GenerateUnlabeledArff {
 	 * @param arffFile
 	 */
 	private static void printFrequencyArff(List<String> texts,
-			Vocabulary vocab, String arffFile, int labelSize) {
+			Vocabulary vocab, String outputDir, List<String> labelList) {
 
-		Consts.fileWriter("@relation codebook\n\n", arffFile, true);
+		// for multilabel
+		String multilabelArff = outputDir
+				+ "/unlabeled.multilabel.frequency.arff";
+		String multiclassArff = outputDir
+				+ "/unlabeled.multiclass.frequency.arff";
+
+		String classForMultiClassArff = Joiner.on(",").join(labelList);
+
+		Consts.fileWriter("@relation codebook\n\n", multilabelArff, true);
+		//
+		Consts.fileWriter("@relation codebook\n\n", multiclassArff, true);
+
 		StringBuffer labels = new StringBuffer();
-		for (int i = 0; i < labelSize; i++) {
-			Consts.fileWriter("@attribute label" + (i + 1) + " {0, 1}\n",
-					arffFile, true);
+		for (int i = 0; i < labelList.size(); i++) {
+			Consts.fileWriter("@attribute " + labelList.get(i) + " {0, 1}\n",
+					multilabelArff, true);
 			labels.append("?,");
 		}
 
+		//
+		Consts.fileWriter("@attribute ZZZCLASS {" + classForMultiClassArff
+				+ "}\n", multiclassArff, true);
+
 		for (int i = 0; i < vocab.getVocabSize(); i++) {
-			Consts.fileWriter("@attribute word" + (i + 1) + " numeric\n",
-					arffFile, true);
+			Consts.fileWriter("@attribute " + vocab.getWord(i + 1)
+					+ " numeric\n", multilabelArff, true);
+			//
+			Consts.fileWriter("@attribute " + vocab.getWord(i + 1)
+					+ " numeric\n", multiclassArff, true);
 		}
 
-		Consts.fileWriter("@data\n", arffFile, true);
+		Consts.fileWriter("@data\n", multilabelArff, true);
+		//
+		Consts.fileWriter("@data\n", multiclassArff, true);
 
 		for (int i = 0; i < texts.size(); i++) {
-
-			Consts.fileWriter(
-					labels.toString() + printFreqVector(vocab, texts.get(i))
-							+ "\n", arffFile, true);
+			String label_str[] = texts.get(i).split("\\t");
+			if (label_str.length == 2) {
+				String str = label_str[1];
+				String freqVector = printFreqVector(vocab, str);
+				Consts.fileWriter(labels.toString() + freqVector + "\n",
+						multilabelArff, true);
+				//
+				Consts.fileWriter("?," + freqVector + "\n", multiclassArff,
+						true);
+			}
 		}
 	}
 
@@ -211,22 +239,54 @@ public class GenerateUnlabeledArff {
 	 * @param masters
 	 * @param arffFile
 	 */
-	private static void printTextArff(List<String> texts, String arffFile,
-			int labelSize) {
+	private static void printTextArff(List<String> texts, String outputDir,
+			List<String> labelList) {
 
-		Consts.fileWriter("@relation codebook\n\n", arffFile, true);
+		// for multilabel
+		String multilabelArff = outputDir + "/unlabeled.multilabel.text.arff";
+		String multiclassArff = outputDir + "/unlabeled.multiclass.text.arff";
+		String textFile = outputDir + "/unlabeled.txt";
+
+		String classForMultiClassArff = Joiner.on(",").join(labelList);
+
+		Consts.fileWriter("@relation codebook\n\n", multilabelArff, true);
+		//
+		Consts.fileWriter("@relation codebook\n\n", multiclassArff, true);
+
 		StringBuffer labels = new StringBuffer();
-		for (int i = 0; i < labelSize; i++) {
-			Consts.fileWriter("@attribute label" + (i + 1) + " {0, 1}\n",
-					arffFile, true);
+		for (int i = 0; i < labelList.size(); i++) {
+			Consts.fileWriter("@attribute " + labelList.get(i) + " {0, 1}\n",
+					multilabelArff, true);
 			labels.append("?,");
 		}
-		Consts.fileWriter("@attribute keywords string\n\n", arffFile, true);
-		Consts.fileWriter("@data\n", arffFile, true);
-		for (int i = 0; i < texts.size(); i++) {
+		//
+		Consts.fileWriter("@attribute ZZZCLASS {" + classForMultiClassArff
+				+ "}\n", multiclassArff, true);
 
-			Consts.fileWriter(labels.toString() + "\"" + texts.get(i) + "\"\n",
-					arffFile, true);
+		Consts.fileWriter("@attribute keywords string\n\n", multilabelArff,
+				true);
+		//
+		Consts.fileWriter("@attribute keywords string\n\n", multiclassArff,
+				true);
+
+		Consts.fileWriter("@data\n", multilabelArff, true);
+		//
+		Consts.fileWriter("@data\n", multiclassArff, true);
+
+		for (int i = 0; i < texts.size(); i++) {
+			String label_str[] = texts.get(i).split("\\t");
+			if (label_str.length == 2) {
+				String label = label_str[0];
+				String str = label_str[1];
+
+				Consts.fileWriter(labels.toString() + "\"" + str + "\"\n",
+						multilabelArff, true);
+				//
+				Consts.fileWriter("?," + "\"" + str + "\"\n", multiclassArff,
+						true);
+
+				Consts.fileWriter(label + "\t" + str + "\n", textFile, true);
+			}
 		}
 	}
 
@@ -235,7 +295,7 @@ public class GenerateUnlabeledArff {
 	 * @param text
 	 * @return
 	 */
-	private static String cleanText(String text, Vocabulary vocab,
+	private static List<String> cleanText(String text, Vocabulary vocab,
 			NEFinder neFinder) {
 		String cleaned = text.toLowerCase().replaceAll("[\\r\\n]+", " ");
 		StringTokenizer st = new StringTokenizer(cleaned);
@@ -262,6 +322,6 @@ public class GenerateUnlabeledArff {
 				outputs.add(words.get(i));
 			}
 		}
-		return Joiner.on(" ").join(outputs);
+		return outputs;
 	}
 }

@@ -1,4 +1,4 @@
-package tn.data;
+package tn.classification.data;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -81,7 +81,7 @@ public class GenerateLabeledArff {
 		List<String> stop_words = new ArrayList<String>();
 		if (cmdline.hasOption(STOPWORD_OPTION)) {
 			stopWordFile = cmdline.getOptionValue(STOPWORD_OPTION);
-			stop_words = Consts.readFromFile(stopWordFile);
+			stop_words = Consts.readFileAsList(stopWordFile);
 		}
 
 		String neFile = "";
@@ -91,12 +91,13 @@ public class GenerateLabeledArff {
 			neFinder = new NEFinder(neFile);
 		}
 
-		List<String> terms = Consts.readFromFile(input);
+		List<String> terms = Consts.readFileAsList(input);
 		List<String> cleanedTerms = new ArrayList<String>();
-		List<String> labels = new ArrayList<String>();
+		List<String> labelList = new ArrayList<String>();
 		// print out labels.xml
 		// label is the topic name
-		String xmlLabels = outputDir + "/" + "labels.xml";
+		String xmlLabels = outputDir + "/labels.xml";
+		String txtLabels = outputDir + "/labels.txt";
 		Consts.fileWriter(
 				"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<labels xmlns=\"http://mulan.sourceforge.net/labels\">\n",
 				xmlLabels, true);
@@ -106,36 +107,36 @@ public class GenerateLabeledArff {
 		for (int i = 0; i < terms.size(); i++) {
 			String label_str[] = terms.get(i).split("\\t");
 			if (label_str != null && label_str.length == 2) {
-				if (!labels.contains(label_str[0])) {
+				if (!labelList.contains(label_str[0])) {
 					Consts.fileWriter("<label name=\"" + label_str[0]
 							+ "\"></label>\n", xmlLabels, true);
-					labels.add(label_str[0]);
+					Consts.fileWriter(label_str[0] + "\n", txtLabels, true);
+					labelList.add(label_str[0]);
 				}
 				List<String> clean = cleanText(label_str[1], stop_words,
 						neFinder);
-				if (clean.size() > 10) {
+
+				if (clean != null && clean.size() >= 10) {
 					String cleanedText = Joiner.on(" ").join(clean);
+
 					cleanedTerms.add(label_str[0] + "\t" + cleanedText);
 					vocab.addText(cleanedText);
 				}
-
 			}
 		}
 
 		Consts.fileWriter("</labels>\n", xmlLabels, true);
+
 		// print to arff textfile
-		String arffFile = outputDir + "/" + "labeled.text.arff";
-		printTextArff(cleanedTerms, arffFile, labels);
+		printTextArff(cleanedTerms, outputDir, labelList);
 
 		// print to arff frequency base
 		// need to build dictionary first
 
-		arffFile = outputDir + "/" + "labeled.frequency.arff";
-		printFrequencyArff(cleanedTerms, vocab, arffFile, labels);
+		printFrequencyArff(cleanedTerms, vocab, outputDir, labelList);
 
 		// store dictionary for later usage
-		String dicFile = outputDir + "/labeled.vocab.txt";
-		printVocab(vocab, dicFile);
+		printVocab(vocab, outputDir);
 	}
 
 	/**
@@ -143,9 +144,11 @@ public class GenerateLabeledArff {
 	 * @param vocab
 	 * @param dicFile
 	 */
-	private static void printVocab(Vocabulary vocab, String dicFile) {
+	private static void printVocab(Vocabulary vocab, String outputDir) {
+		String dicFile = outputDir + "/vocab.txt";
 		Set<Entry<String, Integer>> set = vocab.getWords().entrySet();
 		List<String> list = new ArrayList<String>();
+
 		for (Entry<String, Integer> entry : set) {
 			list.add(entry.getKey() + "\t" + entry.getValue());
 		}
@@ -159,37 +162,62 @@ public class GenerateLabeledArff {
 	 * @param arffFile
 	 */
 	private static void printFrequencyArff(List<String> texts,
-			Vocabulary vocab, String arffFile, List<String> labels) {
+			Vocabulary vocab, String outputDir, List<String> labelList) {
 
-		Consts.fileWriter("@relation codebook\n\n", arffFile, true);
-		for (int i = 0; i < labels.size(); i++) {
-			Consts.fileWriter("@attribute " + labels.get(i) + " {0, 1}\n",
-					arffFile, true);
+		// for multilabel
+		String multilabelArff = outputDir
+				+ "/labeled.multilabel.frequency.arff";
+		String multiclassArff = outputDir
+				+ "/labeled.multiclass.frequency.arff";
+
+		String classForMultiClassArff = Joiner.on(",").join(labelList);
+
+		Consts.fileWriter("@relation codebook\n\n", multilabelArff, true);
+		//
+		Consts.fileWriter("@relation codebook\n\n", multiclassArff, true);
+
+		for (int i = 0; i < labelList.size(); i++) {
+			Consts.fileWriter("@attribute " + labelList.get(i) + " {0, 1}\n",
+					multilabelArff, true);
 		}
+		//
+		Consts.fileWriter("@attribute ZZZCLASS {" + classForMultiClassArff
+				+ "}\n", multiclassArff, true);
 
 		for (int i = 0; i < vocab.getVocabSize(); i++) {
-			Consts.fileWriter("@attribute word" + (i + 1) + " numeric\n",
-					arffFile, true);
+			Consts.fileWriter("@attribute " + vocab.getWord(i + 1)
+					+ " numeric\n", multilabelArff, true);
+			//
+			Consts.fileWriter("@attribute " + vocab.getWord(i + 1)
+					+ " numeric\n", multiclassArff, true);
 		}
 
-		Consts.fileWriter("@data\n", arffFile, true);
+		Consts.fileWriter("@data\n", multilabelArff, true);
+		//
+		Consts.fileWriter("@data\n", multiclassArff, true);
 
 		for (int i = 0; i < texts.size(); i++) {
 			String label_str[] = texts.get(i).split("\\t");
-			String label = label_str[0];
-			String str = label_str[1];
-			StringBuffer tmpLabel = new StringBuffer();
-			for (int j = 0; j < labels.size(); j++) {
-				if (labels.get(j).equalsIgnoreCase(label)) {
-					tmpLabel.append("1,");
-				} else {
-					tmpLabel.append("0,");
+			if (label_str.length == 2) {
+				String label = label_str[0];
+				String str = label_str[1];
+				StringBuffer tmpLabel = new StringBuffer();
+				for (int j = 0; j < labelList.size(); j++) {
+					if (labelList.get(j).equalsIgnoreCase(label)) {
+						tmpLabel.append("1,");
+					} else {
+						tmpLabel.append("0,");
+					}
+
 				}
 
-			}
+				String freqVector = printFreqVector(vocab, str);
+				Consts.fileWriter(tmpLabel.toString() + freqVector + "\n",
+						multilabelArff, true);
 
-			Consts.fileWriter(tmpLabel.toString() + printFreqVector(vocab, str)
-					+ "\n", arffFile, true);
+				Consts.fileWriter(label + "," + freqVector + "\n",
+						multiclassArff, true);
+			}
 		}
 	}
 
@@ -241,31 +269,60 @@ public class GenerateLabeledArff {
 	 * @param masters
 	 * @param arffFile
 	 */
-	private static void printTextArff(List<String> texts, String arffFile,
-			List<String> labels) {
+	private static void printTextArff(List<String> texts, String outputDir,
+			List<String> labelList) {
 
-		Consts.fileWriter("@relation codebook\n\n", arffFile, true);
-		for (int i = 0; i < labels.size(); i++) {
-			Consts.fileWriter("@attribute " + labels.get(i) + " {0, 1}\n",
-					arffFile, true);
+		// for multilabel
+		String multilabelArff = outputDir + "/labeled.multilabel.text.arff";
+		String multiclassArff = outputDir + "/labeled.multiclass.text.arff";
+		String textFile = outputDir + "/labeled.txt";
+
+		String classForMultiClassArff = Joiner.on(",").join(labelList);
+
+		Consts.fileWriter("@relation codebook\n\n", multilabelArff, true);
+		//
+		Consts.fileWriter("@relation codebook\n\n", multiclassArff, true);
+
+		for (int i = 0; i < labelList.size(); i++) {
+			Consts.fileWriter("@attribute " + labelList.get(i) + " {0, 1}\n",
+					multilabelArff, true);
 		}
-		Consts.fileWriter("@attribute keywords string\n\n", arffFile, true);
-		Consts.fileWriter("@data\n", arffFile, true);
+		//
+		Consts.fileWriter("@attribute ZZZCLASS {" + classForMultiClassArff
+				+ "}\n", multiclassArff, true);
+
+		Consts.fileWriter("@attribute keywords string\n\n", multilabelArff,
+				true);
+		//
+		Consts.fileWriter("@attribute keywords string\n\n", multiclassArff,
+				true);
+
+		Consts.fileWriter("@data\n", multilabelArff, true);
+		//
+		Consts.fileWriter("@data\n", multiclassArff, true);
+
 		for (int i = 0; i < texts.size(); i++) {
 			String label_str[] = texts.get(i).split("\\t");
-			String label = label_str[0];
-			String str = label_str[1];
-			StringBuffer tmpLabel = new StringBuffer();
-			for (int j = 0; j < labels.size(); j++) {
-				if (labels.get(j).equalsIgnoreCase(label)) {
-					tmpLabel.append("1,");
-				} else {
-					tmpLabel.append("0,");
-				}
+			if (label_str.length == 2) {
+				String label = label_str[0];
+				String str = label_str[1];
+				StringBuffer tmpLabel = new StringBuffer();
+				for (int j = 0; j < labelList.size(); j++) {
+					if (labelList.get(j).equalsIgnoreCase(label)) {
+						tmpLabel.append("1,");
+					} else {
+						tmpLabel.append("0,");
+					}
 
+				}
+				Consts.fileWriter(tmpLabel.toString() + "\"" + str + "\"\n",
+						multilabelArff, true);
+				//
+				Consts.fileWriter(label + ",\"" + str + "\"\n", multiclassArff,
+						true);
+
+				Consts.fileWriter(label + "\t" + str + "\n", textFile, true);
 			}
-			Consts.fileWriter(tmpLabel.toString() + "\"" + str + "\"\n",
-					arffFile, true);
 		}
 	}
 
