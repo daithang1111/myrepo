@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.google.common.base.Joiner;
 
-import tn.recommendation.Vocabulary;
+import tn.model.recommendation.Vocabulary;
 import tn.util.MathUtil;
 
 public class LDAGenerative {

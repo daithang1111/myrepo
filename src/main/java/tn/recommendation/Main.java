@@ -64,6 +64,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import tn.model.generic.Document;
+import tn.model.recommendation.MatchedDocument;
+
 public class Main {
 
 	public static void main(String[] args) {

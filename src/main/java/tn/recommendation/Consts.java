@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import tn.model.generic.Document;
+import tn.model.recommendation.SparseVector;
+
 public final class Consts {
 	public static final String stopWordFileName = null;
 	public static final double TFIDF_THRESHOLD = 0.1;
@@ -113,7 +116,7 @@ public final class Consts {
 				System.out.println("Getting document for docid= " + docid);
 			for (int i = 0; i < corpus.size(); i++) {
 				Document doc = corpus.get(i);
-				if (doc.getDocid().equalsIgnoreCase(docid)) {
+				if (doc.getDocId().equalsIgnoreCase(docid)) {
 					return doc;
 				}
 			}

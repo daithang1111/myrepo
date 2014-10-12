@@ -3,6 +3,9 @@ package tn.recommendation;
 import java.util.Arrays;
 import java.util.List;
 
+import tn.model.generic.Document;
+import tn.model.recommendation.MatchedDocument;
+
 public class Test {
 
 	/**

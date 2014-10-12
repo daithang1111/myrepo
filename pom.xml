@@ -151,6 +151,10 @@
 							<mainClass>tn.database.sqlite.RunSqlScript</mainClass>
 							<name>RunSqlScript</name>
 						</program>
+						<program>
+							<mainClass>tn.topicmodel.data.preprocess.ConvertToMrldaFormat</mainClass>
+							<name>ConvertToMrldaFormat</name>
+						</program>
 					</programs>
 				</configuration>
 			</plugin>

@@ -13,6 +13,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import tn.model.generic.Document;
+import tn.model.recommendation.SparseVector;
+import tn.model.recommendation.Vocabulary;
+
 public class CorpusUtility {
 
 	/**

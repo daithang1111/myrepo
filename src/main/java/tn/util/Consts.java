@@ -8,10 +8,38 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.Map.Entry;
+
+import org.apache.lucene.analysis.core.SimpleAnalyzer;
+import org.apache.lucene.util.Version;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+
+import tn.model.generic.Actor;
+import tn.model.generic.DataModel;
+import tn.model.generic.Document;
+import tn.model.recommendation.Vocabulary;
 
 public class Consts {
+
+	public static final Date getTIMESTAMP_CONST() {
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(0);
+		return cal.getTime();
+	}
+
+	public static final long getTIME_CONST() {
+		return 0;
+	}
 
 	/**
 	 * 
@@ -69,6 +97,7 @@ public class Consts {
 		}
 		return buf.toString();
 	}
+
 	/**
 	 * 
 	 * @param closeable
@@ -98,5 +127,133 @@ public class Consts {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * convert tab delim text to Document
+	 * 
+	 * @param input
+	 * @return
+	 */
+	public static Document toDocument(String input) {
+		if (input == null)
+			return null;
+		String[] values = input.split("\\t");
+		if (values.length != 4) {
+			return null;
+		}
+
+		String docId = values[0];
+		String title = values[1];
+		// parse date
+		long dateLong = Consts.getTIME_CONST();
+		SimpleDateFormat parserSDF = new SimpleDateFormat(
+				"EEE MMM d HH:mm:ss zzz yyyy");
+		try {
+			Date date = parserSDF.parse(values[2]);
+			dateLong = date.getTime();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		//
+
+		String text = values[3];
+
+		return new Document(dateLong, docId, title, text);
+	}
+
+	public static DataModel toDataModel(String input) {
+		if (input == null)
+			return null;
+		String values[] = input.split("\\t");
+		if (values.length != 7)
+			return null;
+
+		DataModel dm = new DataModel();
+		// parse date
+		Date timestamp = Consts.getTIMESTAMP_CONST();
+		SimpleDateFormat parserSDF = new SimpleDateFormat(
+				"EEE MMM d HH:mm:ss zzz yyyy");
+		try {
+			timestamp = parserSDF.parse(values[0]);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		dm.setTimestamp(timestamp);
+
+		// actor
+		Actor actor = new Actor();
+		actor.setActorId(values[1]);
+		actor.setActorName(values[2]);
+		dm.setActor(actor);
+		// document
+		String docId = values[3];
+		String title = values[4];
+		long dateLong = Consts.getTIME_CONST();
+		try {
+			Date date = parserSDF.parse(values[5]);
+			dateLong = date.getTime();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String text = values[6];
+
+		Document doc = new Document(dateLong, docId, title, text);
+		dm.setDoc(doc);
+
+		return dm;
+
+	}
+
+	/**
+	 * 
+	 * @param text
+	 * @param stop_words
+	 * @param neFinder
+	 * @return
+	 */
+	public static List<String> cleanText(String text, List<String> stop_words,
+			NEFinder neFinder) {
+		String cleaned = text.toLowerCase().replaceAll("[\\r\\n]+", " ");
+		StringTokenizer st = new StringTokenizer(cleaned);
+		List<String> words = Lists.newArrayList();
+		while (st.hasMoreElements()) {
+			words.add((String) st.nextElement());
+		}
+		words.removeAll(stop_words);
+		cleaned = Joiner.on(" ").join(words);
+
+		if (neFinder != null) {
+			cleaned = neFinder.replaceNER(cleaned);
+		}
+		try {
+			words = AnalyzerUtils.parse(new SimpleAnalyzer(Version.LUCENE_45),
+					cleaned);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		words.removeAll(stop_words);
+
+		return words;
+	}
+
+	/**
+	 * 
+	 * @param vocab
+	 * @param outputDir
+	 */
+	public static void printVocab(Vocabulary vocab, String outputDir) {
+		String dicFile = outputDir + "/vocab.txt";
+		Set<Entry<String, Integer>> set = vocab.getWords().entrySet();
+		List<String> list = new ArrayList<String>();
+		for (Entry<String, Integer> entry : set) {
+			list.add(entry.getKey() + "\t" + entry.getValue());
+		}
+		Consts.fileWriter(Joiner.on("\n").join(list), dicFile, false);
 	}
 }

@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -15,16 +12,12 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.lucene.analysis.core.SimpleAnalyzer;
-import org.apache.lucene.util.Version;
 
-import tn.recommendation.Vocabulary;
-import tn.util.AnalyzerUtils;
+import tn.model.recommendation.Vocabulary;
 import tn.util.Consts;
 import tn.util.NEFinder;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 
 public class ProcessPressRelease {
 	private static final String PRESS_OPTION = "pressfile";
@@ -87,20 +80,22 @@ public class ProcessPressRelease {
 			neFinder = new NEFinder(neFile);
 		}
 
-		List<String> terms = Consts.readFileAsList(pressfile);
+		List<String> inputTextList = Consts.readFileAsList(pressfile);
 		Vocabulary vocab = new Vocabulary();
-		String cleanFile = outputDir + "/output.txt";
-		for (int i = 0; i < terms.size(); i++) {
-			String label_str[] = terms.get(i).split("\\t");
+		String outputFile = outputDir + "/output.txt";
+		Consts.fileWriter("", outputFile, false);
+		
+		for (int i = 0; i < inputTextList.size(); i++) {
+			String label_str[] = inputTextList.get(i).split("\\t");
 			if (label_str != null && label_str.length == 2) {
-				List<String> clean = cleanText(label_str[1], stop_words,
+				List<String> cleanWordList = Consts.cleanText(label_str[1], stop_words,
 						neFinder);
 
-				if (clean != null && clean.size() >= 10) {
-					String cleanedText = Joiner.on(" ").join(clean);
+				if (cleanWordList != null && cleanWordList.size() >= 10) {
+					String cleanedText = Joiner.on(" ").join(cleanWordList);
 
 					Consts.fileWriter(label_str[0] + "\t" + cleanedText + "\n",
-							cleanFile, true);
+							outputFile, true);
 					vocab.addText(cleanedText);
 
 				}
@@ -108,52 +103,7 @@ public class ProcessPressRelease {
 		}
 
 		// store dictionary for later usage
-		printVocab(vocab, outputDir);
+		Consts.printVocab(vocab, outputDir);
 	}
 
-	/**
-	 * 
-	 * @param vocab
-	 * @param outputDir
-	 */
-	private static void printVocab(Vocabulary vocab, String outputDir) {
-		String dicFile = outputDir + "/vocab.txt";
-		Set<Entry<String, Integer>> set = vocab.getWords().entrySet();
-		List<String> list = new ArrayList<String>();
-		for (Entry<String, Integer> entry : set) {
-			list.add(entry.getKey() + "\t" + entry.getValue());
-		}
-		Consts.fileWriter(Joiner.on("\n").join(list), dicFile, false);
-	}
-
-	/**
-	 * 
-	 * @param text
-	 * @return
-	 */
-	private static List<String> cleanText(String text, List<String> stop_words,
-			NEFinder neFinder) {
-		String cleaned = text.toLowerCase().replaceAll("[\\r\\n]+", " ");
-		StringTokenizer st = new StringTokenizer(cleaned);
-		List<String> words = Lists.newArrayList();
-		while (st.hasMoreElements()) {
-			words.add((String) st.nextElement());
-		}
-		words.removeAll(stop_words);
-		cleaned = Joiner.on(" ").join(words);
-
-		if (neFinder != null) {
-			cleaned = neFinder.replaceNER(cleaned);
-		}
-		try {
-			words = AnalyzerUtils.parse(new SimpleAnalyzer(Version.LUCENE_45),
-					cleaned);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		words.removeAll(stop_words);
-
-		return words;
-	}
 }

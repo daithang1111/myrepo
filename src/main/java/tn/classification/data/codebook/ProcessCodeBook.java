@@ -22,7 +22,7 @@ import org.apache.lucene.util.Version;
 
 import tn.model.codebook.MasterTopicCode;
 import tn.model.codebook.TopicCode;
-import tn.recommendation.Vocabulary;
+import tn.model.recommendation.Vocabulary;
 import tn.util.AnalyzerUtils;
 import tn.util.Consts;
 import tn.util.NEFinder;
