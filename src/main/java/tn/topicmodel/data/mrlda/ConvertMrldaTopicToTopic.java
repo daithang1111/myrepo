@@ -75,11 +75,11 @@ public class ConvertMrldaTopicToTopic {
 		int streak = topWord + 3;
 		for (int i = 0; i < mrldaTopic.size(); i++) {
 			if (i % streak > 2) {
-				if (i % streak == streak - 1) {
-					Consts.fileWriter(mrldaTopic.get(i).split(" ")[0] + "\n",
+				if (i % streak == (streak - 1)) {
+					Consts.fileWriter(mrldaTopic.get(i).split("\t")[0] + "\n",
 							outputFile, true);
 				} else {
-					Consts.fileWriter(mrldaTopic.get(i).split(" ")[0] + " ",
+					Consts.fileWriter(mrldaTopic.get(i).split("\t")[0] + " ",
 							outputFile, true);
 				}
 			}

@@ -60,9 +60,7 @@ public class Consts {
 			br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 			String strLine = "";
 			while ((strLine = br.readLine()) != null) {
-				if (strLine.trim().length() > 0) {
-					terms.add(strLine);
-				}
+				terms.add(strLine);
 			}
 			br.close();
 			in.close();

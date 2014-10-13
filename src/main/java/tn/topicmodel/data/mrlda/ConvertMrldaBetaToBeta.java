@@ -21,7 +21,8 @@ import tn.util.Consts;
 import com.google.common.base.Joiner;
 
 public class ConvertMrldaBetaToBeta {
-	private static final Logger LOG = Logger.getLogger(ConvertMrldaBetaToBeta.class);
+	private static final Logger LOG = Logger
+			.getLogger(ConvertMrldaBetaToBeta.class);
 	private static final String INPUT_OPTION = "mrldaBeta";
 	private static final String OUTPUT_OPTION = "outputDir";
 	private static final String VOCABSIZE_OPTION = "vocabSize";
@@ -63,22 +64,21 @@ public class ConvertMrldaBetaToBeta {
 		String inputFile = cmdline.getOptionValue(INPUT_OPTION);
 		String outputDir = cmdline.getOptionValue(OUTPUT_OPTION);
 		int vocabSize = -1;
-		if (cmdline.hasOption(VOCABSIZE_OPTION)) {
-			try {
-				vocabSize = Integer.parseInt(cmdline
-						.getOptionValue(VOCABSIZE_OPTION));
-			} catch (Exception pe) {
-				pe.printStackTrace();
-				LOG.info("invalid vocab size");
-				return;
-			}
+
+		try {
+			vocabSize = Integer.parseInt(cmdline
+					.getOptionValue(VOCABSIZE_OPTION));
+		} catch (Exception pe) {
+			pe.printStackTrace();
+			LOG.info("invalid vocab size");
+			return;
 		}
 
 		// convert data
 		String outputFile = outputDir + "/beta.txt";
 		List<String> mrldaBeta = Consts.readFileAsList(inputFile);
-		for (int i = 0; i < mrldaBeta.size(); i++) {
-			if (i >= 5 && i % 4 == 2) {
+		for (int i = 5; i < mrldaBeta.size(); i++) {
+			if (i % 4 == 3) {
 				Consts.fileWriter(getLdacBeta(mrldaBeta.get(i), vocabSize)
 						+ "\n", outputFile, true);
 			}
@@ -92,6 +92,7 @@ public class ConvertMrldaBetaToBeta {
 		HashMap<Integer, Double> hash = new HashMap<Integer, Double>();
 		for (int i = 0; i < values.length; i++) {
 			String[] index_value = values[i].split("=");
+
 			if (index_value.length != 2) {
 				LOG.info("invalid beta file");
 				return null;

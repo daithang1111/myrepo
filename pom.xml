@@ -144,6 +144,10 @@
 							<name>TruncatePressRelease</name>
 						</program>
 						<program>
+							<mainClass>tn.topicmodel.data.press.ReadPressReleaseZipFile</mainClass>
+							<name>ReadPressReleaseZipFile</name>
+						</program>
+						<program>
 							<mainClass>tn.database.sqlite.InsertDataIntoTable</mainClass>
 							<name>InsertDataIntoTable</name>
 						</program>
@@ -156,8 +160,8 @@
 							<name>ConvertToMrldaFormat</name>
 						</program>
 						<program>
-							<mainClass>tn.topicmodel.data.mrlda.ConvertMrldaBeaToBeta</mainClass>
-							<name>ConvertMrldaBeaToBeta</name>
+							<mainClass>tn.topicmodel.data.mrlda.ConvertMrldaBetaToBeta</mainClass>
+							<name>ConvertMrldaBetaToBeta</name>
 						</program>
 						<program>
 							<mainClass>tn.topicmodel.data.mrlda.ConvertMrldaTopicToTopic</mainClass>
