@@ -152,8 +152,20 @@
 							<name>RunSqlScript</name>
 						</program>
 						<program>
-							<mainClass>tn.topicmodel.data.preprocess.ConvertToMrldaFormat</mainClass>
+							<mainClass>tn.data.preprocess.ConvertToMrldaFormat</mainClass>
 							<name>ConvertToMrldaFormat</name>
+						</program>
+						<program>
+							<mainClass>tn.topicmodel.data.mrlda.ConvertMrldaBeaToBeta</mainClass>
+							<name>ConvertMrldaBeaToBeta</name>
+						</program>
+						<program>
+							<mainClass>tn.topicmodel.data.mrlda.ConvertMrldaTopicToTopic</mainClass>
+							<name>ConvertMrldaTopicToTopic</name>
+						</program>
+						<program>
+							<mainClass>tn.topicmodel.data.mrlda.GenTopicResult</mainClass>
+							<name>GenTopicResult</name>
 						</program>
 					</programs>
 				</configuration>
