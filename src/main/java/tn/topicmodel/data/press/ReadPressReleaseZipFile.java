@@ -82,8 +82,8 @@ public class ReadPressReleaseZipFile {
 										.replace(
 												"GrimmerSenatePressReleases-master\\/raw\\/",
 												"")
-										+ "\t" + sb.toString(), outputFile,
-								true);
+										+ "\t" + sb.toString() + "\n",
+								outputFile, true);
 						bf.close();
 						stream.close();
 					} catch (Exception ep) {
