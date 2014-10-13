@@ -1,4 +1,4 @@
-package tn.topicmodel.data.preprocess;
+package tn.data.preprocess;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -22,9 +22,8 @@ import tn.util.NEFinder;
 
 import com.google.common.base.Joiner;
 
-public class ConvertToMrldaFormat {
-	private static final Logger LOG = Logger
-			.getLogger(ConvertToMrldaFormat.class);
+public class PreprocessData {
+	private static final Logger LOG = Logger.getLogger(PreprocessData.class);
 	private static final String INPUT_OPTION = "inputFile";
 	private static final String OUTPUT_OPTION = "outputDir";
 	private static final String STOPWORD_OPTION = "stopWord";
@@ -113,10 +112,10 @@ public class ConvertToMrldaFormat {
 			if (dm != null) {
 				List<String> cleanWordList = Consts.cleanText(dm.getDoc()
 						.getText(), stop_words, neFinder);
-				if (cleanWordList != null && cleanWordList.size() > minWords) {
+				if (cleanWordList != null && cleanWordList.size() >= minWords) {
 					String cleanedText = Joiner.on(" ").join(cleanWordList);
-					Consts.fileWriter(dm.getDoc().getDocId() + "\t"
-							+ cleanedText + "\n", outputFile, true);
+					dm.getDoc().setText(cleanedText);
+					Consts.fileWriter(dm.toString() + "\n", outputFile, true);
 					vocab.addText(cleanedText);
 				}
 			}

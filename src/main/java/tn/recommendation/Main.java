@@ -83,13 +83,13 @@ public class Main {
 	 */
 	public MatchedDocument[] getDocumentsBasedOnDocumentSimilarity(String docid) {
 
-		if (Consts.isValid(docid)) {
-			if (Consts.debug)
+		if (RecUtil.isValid(docid)) {
+			if (RecUtil.debug)
 				System.out.println("Getting similar documents for docid = "
 						+ docid);
 			try {
-				Document doc = Consts.getDocument(docid);
-				List<Document> comparedDocs = Consts.getRecentDocuments();
+				Document doc = RecUtil.getDocument(docid);
+				List<Document> comparedDocs = RecUtil.getRecentDocuments();
 				if (comparedDocs != null && comparedDocs.size() > 0) {
 					List<MatchedDocument> matchedDocuments = new ArrayList<MatchedDocument>();
 					double score = 0;
@@ -99,7 +99,7 @@ public class Main {
 
 					for (Document cDoc : comparedDocs) {
 						score = util.computeJaccardScore(doc, cDoc);
-						if (score >= Consts.DOC_SIMILARITY_THRESHOLD) {
+						if (score >= RecUtil.DOC_SIMILARITY_THRESHOLD) {
 
 							matchedDocuments.add(new MatchedDocument(cDoc,
 									score));
@@ -132,8 +132,8 @@ public class Main {
 	 */
 	public MatchedDocument[] getDocumentsBasedOnUserSimilarity(String userid) {
 
-		if (Consts.isValid(userid)) {
-			if (Consts.debug)
+		if (RecUtil.isValid(userid)) {
+			if (RecUtil.debug)
 				System.out.println("Getting documents for userid = " + userid);
 			try {
 				Hashtable<String, Double> similarUsers = getSimilarUsers(userid);
@@ -144,9 +144,9 @@ public class Main {
 				List<MatchedDocument> matchedDocuments = new ArrayList<MatchedDocument>();
 				for (Entry<String, Double> entry : set) {
 					score = entry.getValue();
-					if (score >= Consts.USER_SIMILARITY_THRESHOLD) {
+					if (score >= RecUtil.USER_SIMILARITY_THRESHOLD) {
 
-						Document doc = Consts
+						Document doc = RecUtil
 								.getReadingDocument(entry.getKey());
 						if (doc != null)
 							matchedDocuments
@@ -179,27 +179,27 @@ public class Main {
 	 */
 	private Hashtable<String, Double> getSimilarUsers(String userid) {
 		try {
-			Set<String> userProfile = Consts.computeUserProfile(userid);
-			if (Consts.debug) {
+			Set<String> userProfile = RecUtil.computeUserProfile(userid);
+			if (RecUtil.debug) {
 				System.out.println("Profile for userid = " + userid + ":");
 				for (String w : userProfile) {
 					System.out.println("word: " + w);
 				}
 			}
 			if (userProfile != null && userProfile.size() > 0) {
-				List<String> readingUsers = Consts.getReadingUsers();
+				List<String> readingUsers = RecUtil.getReadingUsers();
 				if (readingUsers != null && readingUsers.size() > 0) {
 
 					Hashtable<String, Double> output = new Hashtable<String, Double>();
 
 					for (String readingUser : readingUsers) {
-						if (Consts.debug) {
+						if (RecUtil.debug) {
 							System.out.println("userid:" + readingUser);
 
 						}
-						Set<String> readingUserProfile = Consts
+						Set<String> readingUserProfile = RecUtil
 								.computeUserProfile(readingUser);
-						double score = Consts.getJaccardScoreForWordSets(
+						double score = RecUtil.getJaccardScoreForWordSets(
 								userProfile, readingUserProfile);
 						output.put(readingUser, score);
 					}

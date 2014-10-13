@@ -1,19 +1,22 @@
-package tn.recommendation;
+package tn.test;
 
 import java.util.Arrays;
 import java.util.List;
 
 import tn.model.generic.Document;
 import tn.model.recommendation.MatchedDocument;
+import tn.recommendation.CorpusUtility;
+import tn.recommendation.Main;
+import tn.recommendation.RecUtil;
 
-public class Test {
+public class TestRecommendation {
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		// test jaccard
-		List<Document> corpus = Consts.corpus;
+		List<Document> corpus = RecUtil.corpus;
 
 		CorpusUtility util = new CorpusUtility(corpus);
 		/*

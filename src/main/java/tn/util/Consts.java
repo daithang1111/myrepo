@@ -4,30 +4,33 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.Map.Entry;
 
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.util.Version;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 
 import tn.model.generic.Actor;
 import tn.model.generic.DataModel;
 import tn.model.generic.Document;
 import tn.model.recommendation.Vocabulary;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
 public class Consts {
 
@@ -112,20 +115,40 @@ public class Consts {
 		}
 	}
 
-	/**
-	 * 
-	 * @param str
-	 * @param fileName
-	 * @param append
-	 */
+	// /**
+	// *
+	// * @param str
+	// * @param fileName
+	// * @param append
+	// */
+	// @Deprecated
+	// public static void fileWriter(String str, String fileName, boolean
+	// append) {
+	// try {
+	// BufferedWriter output = new BufferedWriter(new FileWriter(fileName,
+	// append));
+	// output.write(str);
+	// output.close();
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// }
+	// }
+
 	public static void fileWriter(String str, String fileName, boolean append) {
 		try {
-			BufferedWriter output = new BufferedWriter(new FileWriter(fileName,
-					append));
+			BufferedWriter output = new BufferedWriter(new OutputStreamWriter(
+					new FileOutputStream(new File(fileName), append), "UTF-8"));
+
 			output.write(str);
+			output.flush();
 			output.close();
+
+		} catch (UnsupportedEncodingException e) {
+			System.out.println(e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
 		}
 	}
 

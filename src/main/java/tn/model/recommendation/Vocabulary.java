@@ -3,7 +3,7 @@ package tn.model.recommendation;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
-import tn.recommendation.Consts;
+import tn.recommendation.RecUtil;
 
 public class Vocabulary {
 
@@ -21,9 +21,9 @@ public class Vocabulary {
 	 * @param word
 	 */
 	public void addWord(String word) {
-		if (Consts.isValid(word)) {
+		if (RecUtil.isValid(word)) {
 			if (words == null) {
-				if (Consts.debug)
+				if (RecUtil.debug)
 					System.out.println("Init vocab");
 				words = new Hashtable<String, Integer>();
 				indexes = new Hashtable<Integer, String>();
@@ -49,7 +49,7 @@ public class Vocabulary {
 	 */
 	public int getIndex(String word) {
 		if (words == null || !words.containsKey(word.toLowerCase())) {
-			if (Consts.debug)
+			if (RecUtil.debug)
 				System.out.println(word + "is not in dictionary");
 			return -1;
 		} else {
@@ -78,13 +78,13 @@ public class Vocabulary {
 	 * @param text
 	 */
 	public void addText(String text) {
-		if (Consts.isValid(text)) {
-			if (Consts.debug)
+		if (RecUtil.isValid(text)) {
+			if (RecUtil.debug)
 				System.out.println("adding " + text);
 			StringTokenizer st = new StringTokenizer(text);
 			while (st.hasMoreElements()) {
 				String word = (String) st.nextElement();
-				if (Consts.debug)
+				if (RecUtil.debug)
 					System.out.println("adding " + word);
 				addWord(word);
 			}

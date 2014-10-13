@@ -12,7 +12,7 @@ import java.util.Set;
 import tn.model.generic.Document;
 import tn.model.recommendation.SparseVector;
 
-public final class Consts {
+public final class RecUtil {
 	public static final String stopWordFileName = null;
 	public static final double TFIDF_THRESHOLD = 0.1;
 	public static final double USER_SIMILARITY_THRESHOLD = 0.1;
@@ -27,8 +27,8 @@ public final class Consts {
 
 	public static final boolean debug = false;
 
-	public static final List<Document> corpus = Consts.genRandomCorpus();
-	public static final List<String> users = Consts.genRandomUsers();
+	public static final List<Document> corpus = RecUtil.genRandomCorpus();
+	public static final List<String> users = RecUtil.genRandomUsers();
 
 	static {
 		try {
@@ -57,7 +57,7 @@ public final class Consts {
 	public static double getJaccardScoreForIndexSets(Set<Integer> set1,
 			Set<Integer> set2) {
 		if (!set1.isEmpty() && !set2.isEmpty()) {
-			if (Consts.debug)
+			if (RecUtil.debug)
 				System.out.println("Two sets are non-empty");
 			Set<Integer> intersection = new HashSet<Integer>(set1);
 			intersection.retainAll(set2);
@@ -67,7 +67,7 @@ public final class Consts {
 
 			return (double) intersection.size() / (double) union.size();
 		} else {
-			if (Consts.debug)
+			if (RecUtil.debug)
 				System.out.println("One/or both sets are empty");
 		}
 		return 0;
@@ -112,7 +112,7 @@ public final class Consts {
 	public static Document getDocument(String docid) {
 
 		if (isValid(docid) && corpus != null) {
-			if (Consts.debug)
+			if (RecUtil.debug)
 				System.out.println("Getting document for docid= " + docid);
 			for (int i = 0; i < corpus.size(); i++) {
 				Document doc = corpus.get(i);
@@ -158,7 +158,7 @@ public final class Consts {
 	 * @return
 	 */
 	public static List<Document> getRecentDocuments() {
-		if (Consts.debug)
+		if (RecUtil.debug)
 			System.out.println("Getting recent documents from database");
 		return corpus;
 	}
@@ -208,7 +208,7 @@ public final class Consts {
 	 * @return
 	 */
 	public static Set<String> computeUserProfile(String userid) {
-		List<Document> docs = Consts.getReadDocuments(userid);
+		List<Document> docs = RecUtil.getReadDocuments(userid);
 		if (docs != null && docs.size() > 0) {
 			try {
 				CorpusUtility util = new CorpusUtility(docs);
@@ -229,7 +229,7 @@ public final class Consts {
 				Set<String> output = new HashSet<String>();
 				Set<Entry<Integer, Integer>> set = sumTFIDF.entrySet();
 				for (Entry<Integer, Integer> entry : set) {
-					if (entry.getValue() >= Consts.CUTOFF_FREQ) {
+					if (entry.getValue() >= RecUtil.CUTOFF_FREQ) {
 						output.add(util.getVocab().getWord(entry.getKey()));
 
 					}

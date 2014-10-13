@@ -35,7 +35,7 @@ public class CorpusUtility {
 	 */
 	public CorpusUtility(List<Document> corpus) {
 		this.corpus = new ArrayList<Document>(corpus);
-		if(Consts.debug)
+		if(RecUtil.debug)
 		System.out.println(corpus.size());
 		this.buildVocabulary();
 		vocabSize = vocab.getVocabSize();
@@ -56,10 +56,10 @@ public class CorpusUtility {
 	 */
 
 	public double computeJaccardScore(Document doc1, Document doc2) {
-		if (Consts.debug)
+		if (RecUtil.debug)
 			System.out.println("Computing Jaccard score for ("
 					+ doc1.getTitle() + "," + doc2.getTitle() + ")");
-		return Consts.getJaccardScoreForIndexSets(getTFIDFSparseVector(doc1)
+		return RecUtil.getJaccardScoreForIndexSets(getTFIDFSparseVector(doc1)
 				.getIndexSet(), getTFIDFSparseVector(doc2).getIndexSet());
 	}
 
@@ -70,7 +70,7 @@ public class CorpusUtility {
 	 * @return
 	 */
 	public double computeCosineScore(Document doc1, Document doc2) {
-		return Consts.getCosineScore(getTFIDFSparseVector(doc1),
+		return RecUtil.getCosineScore(getTFIDFSparseVector(doc1),
 				getTFIDFSparseVector(doc2));
 	}
 
@@ -85,15 +85,15 @@ public class CorpusUtility {
 	 */
 	public SparseVector getTFIDFSparseVector(Document doc) {
 		SparseVector sv = getFrequencySparseVector(doc);
-		if (Consts.debug)
+		if (RecUtil.debug)
 			System.out.println("FREQ SPARSE VECTOR for " +doc.getTitle()+":"+ sv.toString());
 		SparseVector output = new SparseVector(vocabSize);
 
 		Set<Entry<Integer, Double>> set = sv.getMap().entrySet();
 		for (Entry<Integer, Double> entry : set) {
 			double tfidf = getTFIDF(entry.getKey(), sv);
-			if (tfidf >= Consts.TFIDF_THRESHOLD) {
-				if (Consts.debug)
+			if (tfidf >= RecUtil.TFIDF_THRESHOLD) {
+				if (RecUtil.debug)
 					System.out.println("adding "
 							+ this.vocab.getWord(entry.getKey())
 							+ " to sparse vector for document "
@@ -115,19 +115,19 @@ public class CorpusUtility {
 	 * @return
 	 */
 	private SparseVector getFrequencySparseVector(Document doc) {
-		if (Consts.debug)
+		if (RecUtil.debug)
 			System.out.println("creating frq sparse vector for " +doc.getTitle()+", text is "+ doc.getText());
 		StringTokenizer st = new StringTokenizer(doc.getText());
 		List<String> words = new ArrayList<String>();
 		while (st.hasMoreElements()) {
 			words.add((String) st.nextElement());
 		}
-		if (Consts.debug)
+		if (RecUtil.debug)
 			System.out.println("original doc len = " + words.size());
 		// remove stopwords
-		words.removeAll(Consts.stop_words);
+		words.removeAll(RecUtil.stop_words);
 
-		if (Consts.debug)
+		if (RecUtil.debug)
 			System.out.println("after removing stopwords, len = "
 					+ words.size());
 
