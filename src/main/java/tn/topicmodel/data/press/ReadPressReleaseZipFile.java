@@ -80,7 +80,7 @@ public class ReadPressReleaseZipFile {
 						Consts.fileWriter(
 								entry.getName()
 										.replace(
-												"GrimmerSenatePressReleases-master\\/raw\\/",
+												"GrimmerSenatePressReleases-master/raw/",
 												"")
 										+ "\t" + sb.toString() + "\n",
 								outputFile, true);

@@ -155,10 +155,20 @@
 							<mainClass>tn.database.sqlite.RunSqlScript</mainClass>
 							<name>RunSqlScript</name>
 						</program>
+						<!-- preprocess -->
 						<program>
 							<mainClass>tn.data.preprocess.ConvertToMrldaFormat</mainClass>
 							<name>ConvertToMrldaFormat</name>
 						</program>
+						<program>
+							<mainClass>tn.data.preprocess.PreprocessData</mainClass>
+							<name>PreprocessData</name>
+						</program>
+						<program>
+							<mainClass>tn.data.preprocess.TruncateByDocumentFrequency</mainClass>
+							<name>TruncateByDocumentFrequency</name>
+						</program>
+						<!-- Mrlda -->
 						<program>
 							<mainClass>tn.topicmodel.data.mrlda.ConvertMrldaBetaToBeta</mainClass>
 							<name>ConvertMrldaBetaToBeta</name>
