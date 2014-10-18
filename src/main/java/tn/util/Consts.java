@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -25,9 +23,10 @@ import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.util.Version;
 
 import tn.model.generic.Actor;
+import tn.model.generic.DataGroup;
 import tn.model.generic.DataModel;
 import tn.model.generic.Document;
-import tn.model.recommendation.Vocabulary;
+import tn.model.generic.Vocabulary;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -164,66 +163,31 @@ public class Consts {
 			return null;
 		}
 
-		String docId = values[0];
-		String title = values[1];
-		// parse date
-		long dateLong = Consts.getTIME_CONST();
-		SimpleDateFormat parserSDF = new SimpleDateFormat(
-				"EEE MMM d HH:mm:ss zzz yyyy");
-		try {
-			Date date = parserSDF.parse(values[2]);
-			dateLong = date.getTime();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		//
-
-		String text = values[3];
-
-		return new Document(dateLong, docId, title, text);
+		return new Document(values[0], values[1], values[2], values[3]);
 	}
 
 	public static DataModel toDataModel(String input) {
 		if (input == null)
 			return null;
 		String values[] = input.split("\\t");
-		if (values.length != 7)
+		if (values.length != 8)
 			return null;
 
 		DataModel dm = new DataModel();
-		// parse date
-		Date timestamp = Consts.getTIMESTAMP_CONST();
-		SimpleDateFormat parserSDF = new SimpleDateFormat(
-				"EEE MMM d HH:mm:ss zzz yyyy");
-		try {
-			timestamp = parserSDF.parse(values[0]);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		dm.setTimestamp(timestamp);
+		// data group
+		DataGroup dg = new DataGroup();
+		dg.setGroupId(values[0]);
+		dg.setDescription(values[1]);
 
+		dm.setDataGroup(dg);
 		// actor
 		Actor actor = new Actor();
-		actor.setActorId(values[1]);
-		actor.setActorName(values[2]);
+		actor.setActorId(values[2]);
+		actor.setActorName(values[3]);
 		dm.setActor(actor);
 		// document
-		String docId = values[3];
-		String title = values[4];
-		long dateLong = Consts.getTIME_CONST();
-		try {
-			Date date = parserSDF.parse(values[5]);
-			dateLong = date.getTime();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String text = values[6];
 
-		Document doc = new Document(dateLong, docId, title, text);
+		Document doc = new Document(values[4], values[5], values[6], values[7]);
 		dm.setDoc(doc);
 
 		return dm;
@@ -270,9 +234,9 @@ public class Consts {
 	 */
 	public static void printVocab(Vocabulary vocab, String outputDir) {
 		String dicFile = outputDir + "/vocab.txt";
-		Set<Entry<String, Integer>> set = vocab.getWords().entrySet();
+		Set<Entry<Integer, String>> set = vocab.getIndexes().entrySet();
 		List<String> list = new ArrayList<String>();
-		for (Entry<String, Integer> entry : set) {
+		for (Entry<Integer, String> entry : set) {
 			list.add(entry.getKey() + "\t" + entry.getValue());
 		}
 		Consts.fileWriter(Joiner.on("\n").join(list), dicFile, false);

@@ -11,6 +11,7 @@ import java.util.Set;
 
 import tn.model.generic.Document;
 import tn.model.recommendation.SparseVector;
+import tn.util.CorpusUtility;
 
 public final class RecUtil {
 	public static final String stopWordFileName = null;
@@ -18,7 +19,7 @@ public final class RecUtil {
 	public static final double USER_SIMILARITY_THRESHOLD = 0.1;
 	public static final double DOC_SIMILARITY_THRESHOLD = 0.1;
 	public static final int CUTOFF_FREQ = 5;
-	static List<String> stop_words;
+	public static List<String> stop_words;
 
 	public static final int NUM_USERS = 5;
 	public static final int NUM_DOCS = 100;
@@ -274,8 +275,8 @@ public final class RecUtil {
 				tmpText.append(" " + sampleWords[index]);
 			}
 
-			Document doc = new Document((int) (Math.random() * NUM_DATE),
-					"docid" + i, "title" + i, tmpText.toString());
+			Document doc = new Document("docid" + i, "title" + i,
+					(int) (Math.random() * NUM_DATE)+"", tmpText.toString());
 			corpus.add(doc);
 		}
 		return corpus;

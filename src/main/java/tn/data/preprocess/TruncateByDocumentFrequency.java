@@ -19,7 +19,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 
 import tn.model.generic.DataModel;
-import tn.model.recommendation.Vocabulary;
+import tn.model.generic.Vocabulary;
 import tn.util.Consts;
 
 import com.google.common.base.Joiner;
@@ -111,7 +111,7 @@ public class TruncateByDocumentFrequency {
 		for (int i = 0; i < inputTextList.size(); i++) {
 			DataModel dm = Consts.toDataModel(inputTextList.get(i));
 			if (dm != null) {
-				List<String> uniqWords = getUniqWords(dm.getDoc().getText());
+				List<String> uniqWords = getUniqWords(dm.getDoc().getDocContent());
 				for (String word : uniqWords) {
 					if (wordToFreq.containsKey(word)) {
 						wordToFreq.put(word, wordToFreq.get(word) + 1);
@@ -136,12 +136,12 @@ public class TruncateByDocumentFrequency {
 		}
 
 		// print
-		String cleanFile = outputDir + "/output.txt";
+		String cleanFile = outputDir + "/output.txt.trunc";
 		for (int i = 0; i < dmList.size(); i++) {
 			DataModel dm = dmList.get(i);
-			List<String> newText = filterText(dm.getDoc().getText(), vocab);
+			List<String> newText = filterText(dm.getDoc().getDocContent(), vocab);
 			if (newText != null && newText.size() >= minWords) {
-				dm.getDoc().setText(Joiner.on(" ").join(newText));
+				dm.getDoc().setDocContent(Joiner.on(" ").join(newText));
 				Consts.fileWriter(dm.toString() + "\n", cleanFile, true);
 			}
 

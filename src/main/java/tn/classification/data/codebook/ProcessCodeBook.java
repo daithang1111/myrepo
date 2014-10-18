@@ -22,7 +22,7 @@ import org.apache.lucene.util.Version;
 
 import tn.model.codebook.MasterTopicCode;
 import tn.model.codebook.TopicCode;
-import tn.model.recommendation.Vocabulary;
+import tn.model.generic.Vocabulary;
 import tn.util.AnalyzerUtils;
 import tn.util.Consts;
 import tn.util.NEFinder;
@@ -100,7 +100,10 @@ public class ProcessCodeBook {
 		MasterTopicCode mt = null;
 		TopicCode tp = null;
 		for (int i = 0; i < terms.size(); i++) {
-			String line = terms.get(i);
+			String line = terms.get(i).trim();
+			if(line.length()==0){
+				continue;
+			}
 			if (line.startsWith("See also:")) {
 				LOG.info("Skip:" + line);
 			} else if (line.startsWith("Examples:")) {

@@ -17,7 +17,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import tn.model.recommendation.Vocabulary;
+import tn.model.generic.Vocabulary;
 import tn.util.Consts;
 
 import com.google.common.base.Joiner;

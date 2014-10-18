@@ -83,8 +83,8 @@ public class MatchedDocument implements Comparator<MatchedDocument>,
 
 		public int compare(MatchedDocument doc1, MatchedDocument doc2) {
 
-			String title1 = doc1.getDoc().getTitle().toLowerCase();
-			String title2 = doc2.getDoc().getTitle().toLowerCase();
+			String title1 = doc1.getDoc().getDocTitle().toLowerCase();
+			String title2 = doc2.getDoc().getDocTitle().toLowerCase();
 
 			return title1.compareTo(title2);
 
@@ -94,10 +94,10 @@ public class MatchedDocument implements Comparator<MatchedDocument>,
 
 	public int compareTo(MatchedDocument comparedDoc) {
 
-		long currentDate = doc.getDate();
-		long comparedDate = comparedDoc.doc.getDate();
+		String currentDate = doc.getDocTime();
+		String comparedDate = comparedDoc.doc.getDocTime();
 
-		if (currentDate > comparedDate) {
+		if (currentDate.compareTo(comparedDate) > 0) {
 			return -1;
 		} else if (currentDate == comparedDate) {
 			if (score > comparedDoc.getScore()) {
@@ -116,10 +116,10 @@ public class MatchedDocument implements Comparator<MatchedDocument>,
 	public int compare(MatchedDocument doc1, MatchedDocument doc2) {
 		double score1 = doc1.getScore();
 		double score2 = doc2.getScore();
-		long date1 = doc1.getDoc().getDate();
-		long date2 = doc2.getDoc().getDate();
+		String date1 = doc1.getDoc().getDocTime();
+		String date2 = doc2.getDoc().getDocTime();
 
-		if (date1 > date2) {
+		if (date1.compareTo(date2) > 0) {
 			return -1;
 		} else if (date1 == date2) {
 			if (score1 > score2) {

@@ -66,6 +66,7 @@ import java.util.Set;
 
 import tn.model.generic.Document;
 import tn.model.recommendation.MatchedDocument;
+import tn.util.CorpusUtility;
 
 public class Main {
 

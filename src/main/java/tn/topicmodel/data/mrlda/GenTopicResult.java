@@ -107,7 +107,7 @@ public class GenTopicResult {
 			String topicId = prefix + topicIndex;
 			prop = bestTopicProp / sumProp;
 			DataModel dm = Consts.toDataModel(corpusList.get(docIndex));
-			timestamp = dm.getTimestamp().toString();
+			timestamp = dm.getDataGroup().toString(); //TODO
 			actorId = dm.getActor().getActorId();
 			docId = dm.getDoc().getDocId();
 			Consts.fileWriter(actorId + "\t" + timestamp + "\t" + docId + "\t"

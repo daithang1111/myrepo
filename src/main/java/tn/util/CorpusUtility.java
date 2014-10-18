@@ -1,4 +1,4 @@
-package tn.recommendation;
+package tn.util;
 
 /**
  * @author nguyentd4
@@ -14,8 +14,9 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import tn.model.generic.Document;
+import tn.model.generic.Vocabulary;
 import tn.model.recommendation.SparseVector;
-import tn.model.recommendation.Vocabulary;
+import tn.recommendation.RecUtil;
 
 public class CorpusUtility {
 
@@ -35,8 +36,8 @@ public class CorpusUtility {
 	 */
 	public CorpusUtility(List<Document> corpus) {
 		this.corpus = new ArrayList<Document>(corpus);
-		if(RecUtil.debug)
-		System.out.println(corpus.size());
+		if (RecUtil.debug)
+			System.out.println(corpus.size());
 		this.buildVocabulary();
 		vocabSize = vocab.getVocabSize();
 	}
@@ -58,7 +59,7 @@ public class CorpusUtility {
 	public double computeJaccardScore(Document doc1, Document doc2) {
 		if (RecUtil.debug)
 			System.out.println("Computing Jaccard score for ("
-					+ doc1.getTitle() + "," + doc2.getTitle() + ")");
+					+ doc1.getDocTitle() + "," + doc2.getDocTitle() + ")");
 		return RecUtil.getJaccardScoreForIndexSets(getTFIDFSparseVector(doc1)
 				.getIndexSet(), getTFIDFSparseVector(doc2).getIndexSet());
 	}
@@ -86,7 +87,8 @@ public class CorpusUtility {
 	public SparseVector getTFIDFSparseVector(Document doc) {
 		SparseVector sv = getFrequencySparseVector(doc);
 		if (RecUtil.debug)
-			System.out.println("FREQ SPARSE VECTOR for " +doc.getTitle()+":"+ sv.toString());
+			System.out.println("FREQ SPARSE VECTOR for " + doc.getDocTitle()
+					+ ":" + sv.toString());
 		SparseVector output = new SparseVector(vocabSize);
 
 		Set<Entry<Integer, Double>> set = sv.getMap().entrySet();
@@ -97,7 +99,7 @@ public class CorpusUtility {
 					System.out.println("adding "
 							+ this.vocab.getWord(entry.getKey())
 							+ " to sparse vector for document "
-							+ doc.getTitle());
+							+ doc.getDocTitle());
 				output.set(entry.getKey(), 1);// entry.getValue()) or tfidf can
 												// be
 												// used here in
@@ -116,8 +118,9 @@ public class CorpusUtility {
 	 */
 	private SparseVector getFrequencySparseVector(Document doc) {
 		if (RecUtil.debug)
-			System.out.println("creating frq sparse vector for " +doc.getTitle()+", text is "+ doc.getText());
-		StringTokenizer st = new StringTokenizer(doc.getText());
+			System.out.println("creating frq sparse vector for "
+					+ doc.getDocTitle() + ", text is " + doc.getDocContent());
+		StringTokenizer st = new StringTokenizer(doc.getDocContent());
 		List<String> words = new ArrayList<String>();
 		while (st.hasMoreElements()) {
 			words.add((String) st.nextElement());
@@ -148,7 +151,7 @@ public class CorpusUtility {
 	private final void buildVocabulary() {
 		vocab = new Vocabulary();
 		for (Document d : corpus) {
-			vocab.addText(d.getText());
+			vocab.addText(d.getDocContent());
 		}
 	}
 

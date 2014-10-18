@@ -1,27 +1,19 @@
 package tn.model.generic;
 
-import java.util.Calendar;
 
 public class Document {
 
 	private String docId;
-	private String title;
-	private String text;
-	private long date;
+	private String docTitle;
+	private String docTime;
+	private String docContent;
 
-	public Document(long date, String docid, String title, String text) {
-		this.setDate(date);
-		this.setDocId(docid);
-		this.setTitle(title);
-		this.setText(text);
-	}
+	public Document(String docid, String title, String date, String text) {
 
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public String getText() {
-		return this.text;
+		this.docId = docid;
+		this.docTitle = title;
+		this.docTime = date;
+		this.docContent = text;
 	}
 
 	public String getDocId() {
@@ -32,38 +24,32 @@ public class Document {
 		this.docId = docId;
 	}
 
-	public String getTitle() {
-		return title;
+	public String getDocTitle() {
+		return docTitle;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
+	public void setDocTitle(String docTitle) {
+		this.docTitle = docTitle;
 	}
 
-	public long getDate() {
-		return date;
+	public String getDocContent() {
+		return docContent;
 	}
 
-	public void setDate(long date2) {
-		this.date = date2;
+	public void setDocContent(String docContent) {
+		this.docContent = docContent;
 	}
 
-	public String getDateString() {
-		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(date);
-		return cal.getTime().toString();
+	public String getDocTime() {
+		return docTime;
+	}
+
+	public void setDocTime(String docTime) {
+		this.docTime = docTime;
 	}
 
 	@Override
 	public String toString() {
-		return docId + "\t" + title + "\t" + getDateString() + "\t" + text;
-	}
-
-	public static void main(String[] args) {
-		Calendar cal = Calendar.getInstance();
-		Document doc = new Document(cal.getTimeInMillis(), "title1", "doc1",
-				"this is a test");
-
-		System.out.println(doc.getDateString());
+		return docId + "\t" + docTitle + "\t" + docTime + "\t" + docContent;
 	}
 }

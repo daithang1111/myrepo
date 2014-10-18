@@ -15,7 +15,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 
 import tn.model.generic.DataModel;
-import tn.model.recommendation.Vocabulary;
+import tn.model.generic.Vocabulary;
 import tn.topicmodel.data.press.ProcessPressRelease;
 import tn.util.Consts;
 import tn.util.NEFinder;
@@ -112,7 +112,7 @@ public class ConvertToMrldaFormat {
 			DataModel dm = Consts.toDataModel(inputTextList.get(i));
 			if (dm != null) {
 				List<String> cleanWordList = Consts.cleanText(dm.getDoc()
-						.getText(), stop_words, neFinder);
+						.getDocContent(), stop_words, neFinder);
 				if (cleanWordList != null && cleanWordList.size() >= minWords) {
 					String cleanedText = Joiner.on(" ").join(cleanWordList);
 					Consts.fileWriter(dm.getDoc().getDocId() + "\t"

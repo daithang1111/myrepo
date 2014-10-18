@@ -1,4 +1,4 @@
-package tn.model.recommendation;
+package tn.model.generic;
 
 import java.util.Hashtable;
 import java.util.StringTokenizer;

@@ -5,9 +5,9 @@ import java.util.List;
 
 import tn.model.generic.Document;
 import tn.model.recommendation.MatchedDocument;
-import tn.recommendation.CorpusUtility;
 import tn.recommendation.Main;
 import tn.recommendation.RecUtil;
+import tn.util.CorpusUtility;
 
 public class TestRecommendation {
 
@@ -49,7 +49,7 @@ public class TestRecommendation {
 		if (matches != null && matches.length > 0) {
 			for (int i = 0; i < matches.length; i++) {
 
-				System.out.println(matches[i].getDoc().getDate() + "\t"
+				System.out.println(matches[i].getDoc().getDocTime() + "\t"
 						+ matches[i].getScore() + "\t"
 						+ matches[i].getDoc().toString());
 			}
@@ -62,7 +62,7 @@ public class TestRecommendation {
 		if (matches != null && matches.length > 0) {
 			for (int i = 0; i < matches.length; i++) {
 
-				System.out.println(matches[i].getDoc().getDate() + "\t"
+				System.out.println(matches[i].getDoc().getDocTime() + "\t"
 						+ matches[i].getScore() + "\t"
 						+ matches[i].getDoc().toString());
 			}

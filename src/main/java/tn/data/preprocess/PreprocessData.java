@@ -1,9 +1,25 @@
+/**
+ * INPUT: a file contains lines, where each line in the following format (TAB delimited)
+ * GroupId, Description, ActorId, ActorName, DocId, DocTitle, DocTime, DocContent
+ * 
+ * 
+ * OUTPUT: 
+ * 1. ---files (TAB delimited) to load into database as following:
+ * datagroup: groupdId, description
+ * actor: actorId, actorName
+ * document: groupId, actorId, docId, docTitle, docTime, docContent (raw content)
+ * vocabulary: wordId, word
+
+ */
+
 package tn.data.preprocess;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -15,7 +31,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 
 import tn.model.generic.DataModel;
-import tn.model.recommendation.Vocabulary;
+import tn.model.generic.Vocabulary;
 import tn.topicmodel.data.press.ProcessPressRelease;
 import tn.util.Consts;
 import tn.util.NEFinder;
@@ -105,24 +121,48 @@ public class PreprocessData {
 		List<String> inputTextList = Consts.readFileAsList(inputFile);
 		Vocabulary vocab = new Vocabulary();
 		String outputFile = outputDir + "/output.txt";
+		String documentFile = outputDir + "/document.txt";
+
+		// only print uniq pair
+		Set<String> dataGroupSet = new HashSet<String>();
+		Set<String> actorSet = new HashSet<String>();
+
 		// delete current output
 		Consts.fileWriter("", outputFile, false);
 		for (int i = 0; i < inputTextList.size(); i++) {
 			DataModel dm = Consts.toDataModel(inputTextList.get(i));
 			if (dm != null) {
 				List<String> cleanWordList = Consts.cleanText(dm.getDoc()
-						.getText(), stop_words, neFinder);
+						.getDocContent(), stop_words, neFinder);
 				if (cleanWordList != null && cleanWordList.size() >= minWords) {
 					String cleanedText = Joiner.on(" ").join(cleanWordList);
-					dm.getDoc().setText(cleanedText);
+
+					dataGroupSet.add(dm.getDataGroup().toString());
+
+					actorSet.add(dm.getActor().toString());
+					// print out document file
+					Consts.fileWriter(dm.getDataGroup().getGroupId() + "\t"
+							+ dm.getActor().getActorId() + "\t"
+							+ dm.getDoc().toString() + "\n", documentFile, true);
+
+					dm.getDoc().setDocContent(cleanedText);
 					Consts.fileWriter(dm.toString() + "\n", outputFile, true);
 					vocab.addText(cleanedText);
 				}
 			}
 		}
+		// print out data group
+		String datagroupFile = outputDir + "/datagroup.txt";
+		for (String tmp : dataGroupSet) {
+			Consts.fileWriter(tmp + "\n", datagroupFile, true);
+		}
+		// print out actor
+		String actorFile = outputDir + "/actor.txt";
+		for (String tmp : actorSet) {
+			Consts.fileWriter(tmp + "\n", actorFile, true);
+		}
 
 		// store dictionary for later usage
 		Consts.printVocab(vocab, outputDir);
 	}
-
 }

@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.util.Version;
 
-import tn.model.recommendation.Vocabulary;
+import tn.model.generic.Vocabulary;
 import tn.util.AnalyzerUtils;
 import tn.util.Consts;
 import tn.util.NEFinder;
