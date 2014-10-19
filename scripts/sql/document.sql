@@ -4,9 +4,9 @@ CREATE TABLE DOCUMENT (
     rowID       INTEGER PRIMARY KEY AUTOINCREMENT,
     GROUPID	varchar(100),
     ACTORID		varchar(100),
-    DOCID      varchar(1000),
-    DOCTITLE	varchar(1000),
-    DOCTIME		varchar(100),
+    DOCID      varchar(100),
+    DOCTITLE	varchar(100),
+    DOCTIME		varchar(20),
     DOCCONTENT      text
 
 );

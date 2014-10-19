@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -33,14 +33,13 @@ import com.google.common.collect.Lists;
 
 public class Consts {
 
-	public static final Date getTIMESTAMP_CONST() {
+	public static final SimpleDateFormat defaultFormatter = new SimpleDateFormat(
+			"yyyy-MM-dd");
+
+	public static final String getTIME_CONST() {
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(0);
-		return cal.getTime();
-	}
-
-	public static final long getTIME_CONST() {
-		return 0;
+		return defaultFormatter.format(cal.getTime());
 	}
 
 	/**

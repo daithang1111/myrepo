@@ -181,6 +181,10 @@
 							<mainClass>tn.topicmodel.data.mrlda.GenTopicResult</mainClass>
 							<name>GenTopicResult</name>
 						</program>
+						<program>
+							<mainClass>tn.topicmodel.data.press.GenTestCorpusBasedOnPressRelease</mainClass>
+							<name>GenTestCorpusBasedOnPressRelease</name>
+						</program>
 					</programs>
 				</configuration>
 			</plugin>

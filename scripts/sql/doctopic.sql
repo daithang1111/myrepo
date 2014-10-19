@@ -2,7 +2,7 @@ PRAGMA encoding = "UTF-8";
 DROP TABLE IF EXISTS DOC_TOPIC;
 CREATE TABLE DOC_TOPIC (
     rowID       INTEGER PRIMARY KEY AUTOINCREMENT,
-    DOCID	varchar(1000),
+    DOCID	varchar(100),
     TOPICID      varchar(100),
     TOPICPROP 	text
 );
