@@ -118,7 +118,7 @@ public class GenTestCorpusBasedOnPressRelease {
 	// the format of docTitle is 22Jan2007akaka232.txt
 
 	private static String createDocTime(String docTitle) {
-		SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+		SimpleDateFormat formatter = new SimpleDateFormat("ddMMMyyyy");
 
 		int index = 8;
 		try {
