@@ -185,6 +185,14 @@
 							<mainClass>tn.topicmodel.data.press.GenTestCorpusBasedOnPressRelease</mainClass>
 							<name>GenTestCorpusBasedOnPressRelease</name>
 						</program>
+						<program>
+							<mainClass>tn.classification.data.codebook.GenCodeBookTopicWord</mainClass>
+							<name>GenCodeBookTopicWord</name>
+						</program>
+						<program>
+							<mainClass>tn.data.preprocess.GenVocab</mainClass>
+							<name>GenVocab</name>
+						</program>
 					</programs>
 				</configuration>
 			</plugin>
