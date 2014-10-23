@@ -73,11 +73,11 @@ public class GenCodeBookTopicWord {
 					tmpHash = new HashMap<String, Integer>();
 				}
 				for (int j = 0; j < words.length; j++) {
-					if (tmpHash.containsKey(words[i])) {
-						tmpHash.put(words[i], tmpHash.get(words[i]) + 1);
+					if (tmpHash.containsKey(words[j])) {
+						tmpHash.put(words[j], tmpHash.get(words[j]) + 1);
 					} else {
 
-						tmpHash.put(words[i], 1);
+						tmpHash.put(words[j], 1);
 					}
 				}
 				hash.put(topicId, tmpHash);
