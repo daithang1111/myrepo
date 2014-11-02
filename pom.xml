@@ -193,6 +193,10 @@
 							<mainClass>tn.data.preprocess.GenVocab</mainClass>
 							<name>GenVocab</name>
 						</program>
+						<program>
+							<mainClass>tn.topicmodel.data.press.GenTestCorpusBasedOnTabFormat</mainClass>
+							<name>GenTestCorpusBasedOnTabFormat</name>
+						</program>
 					</programs>
 				</configuration>
 			</plugin>
