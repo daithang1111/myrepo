@@ -197,6 +197,10 @@
 							<mainClass>tn.topicmodel.data.press.GenTestCorpusBasedOnTabFormat</mainClass>
 							<name>GenTestCorpusBasedOnTabFormat</name>
 						</program>
+						<program>
+							<mainClass>tn.topicmodel.data.press.GenTestCorpusBasedOnWarcbaseData</mainClass>
+							<name>GenTestCorpusBasedOnWarcbaseData</name>
+						</program>
 					</programs>
 				</configuration>
 			</plugin>
