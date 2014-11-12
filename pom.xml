@@ -136,6 +136,11 @@
 							<name>PredictMultiClass</name>
 						</program>
 						<program>
+							<mainClass>tn.classification.classify.PredictMultiClassSMO</mainClass>
+							<name>PredictMultiClassSMO</name>
+						</program>
+						
+						<program>
 							<mainClass>tn.topicmodel.data.press.ProcessPressRelease</mainClass>
 							<name>ProcessPressRelease</name>
 						</program>
