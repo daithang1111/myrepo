@@ -1,16 +1,18 @@
 package tn.topicmodel.algorithm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import com.google.common.base.Joiner;
+import java.util.TreeMap;
 
 import tn.model.generic.Vocabulary;
 import tn.util.MathUtil;
 
+import com.google.common.base.Joiner;
+
 public class LDAGenerative {
-	int M = 10; // number of document
-	int K = 3; // number of topics
+	int M = 100; // number of document
+	int K = 10; // number of topics
 	int avgLength = 10;
 	int V = 10;// number of words
 	double alpha;
@@ -34,7 +36,8 @@ public class LDAGenerative {
 	 * @param alpha
 	 * @param beta
 	 */
-	public LDAGenerative(int M, int K, int V, int avgLength, double alpha, double beta) {
+	public LDAGenerative(int M, int K, int V, int avgLength, double alpha,
+			double beta) {
 		this.M = M;
 		this.K = K;
 		this.V = V;
@@ -48,13 +51,13 @@ public class LDAGenerative {
 		alphas = new double[K];
 		for (int k = 0; k < K; k++) {
 			alphas[k] = alpha;
-			topicVocab.addWord("t" + (k+1));
+			topicVocab.addWord("t" + (k + 1));
 		}
 		// betas
 		betas = new double[V];
 		for (int v = 0; v < V; v++) {
 			betas[v] = beta;
-			wordVocab.addWord("w" + (v+1));
+			wordVocab.addWord("w" + (v + 1));
 		}
 		// phis
 		phis = new double[K][V];
@@ -100,6 +103,22 @@ public class LDAGenerative {
 			}
 
 			System.out.println(Joiner.on(" ").join(doc));
+		}
+
+	}
+
+	public void printWordStatistics() {
+		int[] stat = new int[wordVocab.getVocabSize()];
+		for (int m = 0; m < M; m++) {
+			int Nm = docs[m].length;
+			for (int n = 0; n < Nm; n++) {
+				stat[docs[m][n]]++;
+			}
+		}
+		Arrays.sort(stat);
+
+		for (int i = 0; i < stat.length; i++) {
+			System.out.println(stat[i]);
 		}
 
 	}
@@ -217,4 +236,9 @@ public class LDAGenerative {
 		this.wordVocab = wordVocab;
 	}
 
+	public static void main(String[] args) {
+		LDAGenerative lda = new LDAGenerative(100000, 10, 100, 100, 0.1, 0.05);
+		lda.generate();
+		lda.printWordStatistics();
+	}
 }

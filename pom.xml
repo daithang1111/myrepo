@@ -136,11 +136,6 @@
 							<name>PredictMultiClass</name>
 						</program>
 						<program>
-							<mainClass>tn.classification.classify.PredictMultiClassSMO</mainClass>
-							<name>PredictMultiClassSMO</name>
-						</program>
-						
-						<program>
 							<mainClass>tn.topicmodel.data.press.ProcessPressRelease</mainClass>
 							<name>ProcessPressRelease</name>
 						</program>
@@ -206,6 +201,18 @@
 							<mainClass>tn.topicmodel.data.press.GenTestCorpusBasedOnWarcbaseData</mainClass>
 							<name>GenTestCorpusBasedOnWarcbaseData</name>
 						</program>
+						<program>
+							<mainClass>tn.classification.classify.PredictMultiClassSMO</mainClass>
+							<name>PredictMultiClassSMO</name>
+						</program>		
+						<program>
+							<mainClass>tn.classification.classify.PredictMultiClassTree</mainClass>
+							<name>PredictMultiClassTree</name>
+						</program>		
+						<program>
+							<mainClass>tn.classification.classify.PredictMultiClassLogistic</mainClass>
+							<name>PredictMultiClassLogistic</name>
+						</program>		
 					</programs>
 				</configuration>
 			</plugin>
