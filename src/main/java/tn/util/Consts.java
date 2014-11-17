@@ -19,6 +19,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import jnisvmlight.LabeledFeatureVector;
+
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.util.Version;
 
@@ -239,5 +241,36 @@ public class Consts {
 			list.add(entry.getKey() + "\t" + entry.getValue());
 		}
 		Consts.fileWriter(Joiner.on("\n").join(list), dicFile, false);
+	}
+
+	/*
+	 * unlike arff in weka, this arffTrain should be sparse vector, the first
+	 * one is the so the format should be: label\t i1:v1 i2:v2...
+	 */
+	public static LabeledFeatureVector[] readSVMLightInput(String arffTrain) {
+		List<String> instanceList = Consts.readFileAsList(arffTrain);
+		int size = instanceList.size();
+		LabeledFeatureVector[] outputs = new LabeledFeatureVector[size];
+
+		String row = "";
+		int label = 0;
+		for (int i = 0; i < size; i++) {
+			row = instanceList.get(i);
+			String[] values = row.split(" ");
+			label = Integer.parseInt(values[0]);
+
+			int dimSize = values.length - 1;
+			int dims[] = new int[dimSize];
+			double vals[] = new double[dimSize];
+
+			for (int j = 0; j < dimSize; j++) {
+				String tmp[] = values[j + 1].split(":");
+				dims[j] = Integer.parseInt(tmp[0]);
+				vals[j] = Double.parseDouble(tmp[1]);
+				outputs[i] = new LabeledFeatureVector(label, dims, vals);
+			}
+		}
+
+		return outputs;
 	}
 }

@@ -213,6 +213,10 @@
 							<mainClass>tn.classification.classify.PredictMultiClassLogistic</mainClass>
 							<name>PredictMultiClassLogistic</name>
 						</program>		
+						<program>
+							<mainClass>tn.classification.classify.PredictMultiClassSVMLight</mainClass>
+							<name>PredictMultiClassSVMLight</name>
+						</program>						
 					</programs>
 				</configuration>
 			</plugin>
@@ -365,5 +369,22 @@
 			<artifactId>log4j</artifactId>
 			<version>${log4j.version}</version>
 		</dependency>
+		<!-- svm lib
+		<dependency>
+			<groupId>org.cleartk</groupId>
+			<artifactId>cleartk-ml-svmlight</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.cleartk</groupId>
+			<artifactId>cleartk-ml-liblinear</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.cleartk</groupId>
+			<artifactId>cleartk-ml-libsvm</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+		-->
 	</dependencies>
 </project>
