@@ -369,6 +369,12 @@
 			<artifactId>log4j</artifactId>
 			<version>${log4j.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>tn</groupId>
+			<artifactId>svmlight</artifactId>
+			<version>6.1</version>
+		</dependency>
+		
 		<!-- svm lib
 		<dependency>
 			<groupId>org.cleartk</groupId>
