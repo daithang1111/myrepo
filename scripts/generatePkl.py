@@ -20,6 +20,12 @@ def composePkl(textFile, labelFile):
 	with open(labelFile) as file:
 		for line in file:
 			values =line.rstrip().split("\t")
+			#for amazon only
+			#v =float(values[1])
+			#if v<5:
+			#	target.append(0)
+			#else:
+			#	target.append(1)
 			target.append(int(values[1]))
 			#target_names.append(values[1])
 	DESCR.append("NONE")
@@ -45,6 +51,10 @@ testLabel =corpus+".test.response"
 
 testBunch =composePkl(testFile,testLabel)
 
-cPickle.dump((trainBunch, testBunch), open(corpus+'.pkl', 'wb'))
+devFile =corpus+'.dev.txt'
+devLabel =corpus+'.dev.response'
+devBunch = composePkl(devFile,devLabel)
+
+cPickle.dump((trainBunch, devBunch, testBunch), open(corpus+'.pkl', 'wb'))
 
 
